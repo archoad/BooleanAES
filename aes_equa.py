@@ -289,7 +289,7 @@ def controlCipheringProcess():
 
 if __name__ == "__main__":
 	generateFiles()
-#	controlCipheringProcess()
+	controlCipheringProcess()
 
 
 
