@@ -217,6 +217,14 @@ def generateFiles():
 def controlCipheringProcess():
 	clearBlock = '3243f6a8885a308d313198a2e0370734'
 	key = '2b7e151628aed2a6abf7158809cf4f3c'
+	fipsAddRoundKey = '193de3bea0f4e22b9ac68d2ae9f84808'
+	fipsMixColumn = '046681e5e0cb199a48f8d37a2806264c'
+
+#	clearBlock = '00112233445566778899aabbccddeeff'
+#	key = '000102030405060708090a0b0c0d0e0f'
+#	fipsAddRoundKey = '00102030405060708090a0b0c0d0e0f0'
+#	fipsMixColumn = '5f72641557f5bc92f7be3b291db9f91a'
+
 	printColor('## Clear block %s' % (clearBlock), BLUE)
 	printColor('## Key block %s' % (key), BLUE)
 	key = hexToBinBlock(key)
@@ -237,6 +245,7 @@ def controlCipheringProcess():
 	printColor('## addRoundKey')
 	print block, len(block)
 	print bin2hex(block), len(bin2hex(block))
+	print('%s (FIPS result)' % (fipsAddRoundKey))
 	result = ''
 	for i in xrange(blockSize):
 		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
@@ -250,13 +259,14 @@ def controlCipheringProcess():
 					temp.append(line)
 		result += treatSB_MC_SR(temp, block)
 	block = result
-	printColor('## subBytes and shiftRows')
+	printColor('## subBytes, shiftRows and MixColumns')
 	print block, len(block)
 	print bin2hex(block), len(bin2hex(block))
+	print('%s (FIPS result)' % (fipsMixColumn))
 
 
 if __name__ == "__main__":
-	generateFiles()
+#	generateFiles()
 	controlCipheringProcess()
 
 
