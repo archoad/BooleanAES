@@ -48,7 +48,7 @@ def extractMixColumns(file):
 	return tmp
 
 
-def extractRoundOne(file):
+def extractRound(file):
 	tmp = []
 	flag = 0
 	f = openFile(file)
@@ -56,7 +56,7 @@ def extractRoundOne(file):
 	closeFile(f)
 	for line in allLines:
 		line = line.rstrip('\r\n')
-		if line == '## subBytes': flag = 1
+		if line == '## Round': flag = 1
 		if line == '## end': flag = 0
 		if flag:
 			if line[0] <> '#':
@@ -126,7 +126,7 @@ def monomesGraph(tab):
 def displayLatexTable():
 	for i in xrange(blockSize):
 		print "$%s$ &" % i, # numero of output bit
-		tab = extractRoundOne('f_%s.txt' % (intToThreeChar(i)))
+		tab = extractRound('f_%s.txt' % (intToThreeChar(i)))
 		print "$%s$ &" % len(tab), # number of monomials
 		d = countMonomes(tab)
 		for m in xrange(len(d)):
@@ -151,7 +151,7 @@ def displayTableAES():
 		print "Bit num: %s ->\t" % i,
 #		tab = extractSubBytes('f_%s.txt' % (intToThreeChar(i)))
 #		tab = extractMixColumns('f_%s.txt' % (intToThreeChar(i)))
-		tab = extractRoundOne('f_%s.txt' % (intToThreeChar(i)))
+		tab = extractRound('f_%s.txt' % (intToThreeChar(i)))
 		print "Nombre de monômes: %s ->\t" % len(tab),
 		d = countMonomes(tab)
 		print "Degrees distribution: %s" % d, len(d),
@@ -199,7 +199,7 @@ if __name__ == "__main__":
 	mean = computeMean(8)
 	chi2Test(aes, mean)
 	computeStatDistance(aes, mean)
-#	monomesGraph(aes)
+	monomesGraph(aes)
 
 
 
