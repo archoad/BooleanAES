@@ -72,22 +72,14 @@ def addRoundKey(block, keyBlock):
 
 
 def subBytes():
-	printColor('## SubBytes', GREEN)
 	tt = generateSboxTruthTable()
 	rm = generateMoebiusTransform(tt)
 	equations = generateEquaMonomes(rm)
-	equaAES = generateEquaMonomesAES(equations)
-	binMon = generateBinaryMonomes(equaAES)
-	for i in xrange(blockSize):
-		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## subBytes\r\n')
-		f.write(binMon[i])
-		closeFile(f)
-	return equaAES
+	equa = generateEquaMonomesAES(equations)
+	return equa
 
 
 def shiftRows():
-	printColor('## ShiftRows', GREEN)
 	Nb = 4
 	result = []
 	SR = []
@@ -104,11 +96,6 @@ def shiftRows():
 		for i in xrange(octetSize):
 			SR.append(generateBitsBlock('x_' + str((numByte*octetSize)+i)))
 	for i in xrange(blockSize):
-		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## shiftRows\r\n')
-		f.write('0\t' + SR[i] + '\r\n')
-		closeFile(f)
-	for i in xrange(blockSize):
 		for bit in xrange(blockSize):
 			if SR[i][bit] == '1':
 				equa.append('x_%s' % (bit))
@@ -116,7 +103,6 @@ def shiftRows():
 
 
 def mixColumns():
-	printColor('## MixColumns', GREEN)
 	equa = []
 	result = ['' for i in xrange(blockSize)]
 	tt2 = generateMultBy02TruthTable()
@@ -140,13 +126,6 @@ def mixColumns():
 			result[val+24] = binMon3[val] + bits[val+8] + bits[val+16] + binMon2[val+24]
 
 	for i in xrange(blockSize):
-		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## mixColumns\r\n')
-		f.write(result[i])
-		f.write('## end\r\n')
-		closeFile(f)
-
-	for i in xrange(blockSize):
 		tmp = result[i].split('\r\n')
 		tmp.pop()
 		eq = ''
@@ -160,6 +139,31 @@ def mixColumns():
 			eq += '+'
 		equa.append(eq.rstrip('+'))
 	return equa
+
+
+def equaRound(equaSB, equaSR, equaMC):
+	printColor('## Round', GREEN)
+	resultSR = []
+	resultMC = []
+	for i in xrange(blockSize):
+		equaSR[i] = equaSR[i].split('_')
+		resultSR.append(equaSB[int(equaSR[i][1])])
+
+	for i in xrange(blockSize):
+		tmp = ''
+		for monomial in equaMC[i].split('+'):
+			tmp += resultSR[int(monomial.split('_')[1])]
+			tmp += '+'
+		resultMC.append(tmp.rstrip('+'))
+	binMon = generateBinaryMonomes(resultMC)
+
+	for i in xrange(blockSize):
+		f = openFile('f_%s.txt' % (intToThreeChar(i)))
+		f.write('## Round\r\n')
+		f.write(binMon[i])
+		f.write('## end\r\n')
+		closeFile(f)
+	return resultMC
 
 
 def treatAddRoundKey(ARK, key, clearBlock):
@@ -195,21 +199,17 @@ def generateFiles():
 #	print clearBlock, len(clearBlock)
 #	print keyBlock, len(keyBlock)
 
+	equaSB = subBytes()
+	equaSR = shiftRows()
+	equaMC = mixColumns()
+
 	step1 = addRoundKey(clearBlock, keyBlock)
 #	print step1, len(step1)
 #	bitToLatex(step1[127])
 
-	step2 = subBytes()
+	step2 = equaRound(equaSB, equaSR, equaMC)
 #	print step2, len(step2)
 #	bitToLatex(step2[127])
-
-	step3 = shiftRows()
-#	print step3, len(step3)
-#	bitToLatex(step3[127])
-
-	step4 = mixColumns()
-#	print step4, len(step4)
-#	bitToLatex(step4[127])
 
 	printColor('## Files generated', RED)
 
@@ -228,7 +228,7 @@ def controlCipheringProcess():
 		for line in allLines:
 			line = line.rstrip('\r\n')
 			if line == '## addRoundKey': flag = 1
-			if line == '## subBytes': flag = 0
+			if line == '## Round': flag = 0
 			if flag:
 				if line[0] <> '#':
 					temp.append(line)
@@ -243,46 +243,14 @@ def controlCipheringProcess():
 		temp = []
 		for line in allLines:
 			line = line.rstrip('\r\n')
-			if line == '## subBytes': flag = 1
-			if line == '## shiftRows': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result += treatSB_MC_SR(temp, block)
-	block = result
-	printColor('## subBytes')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
-	result = ''
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## shiftRows': flag = 1
-			if line == '## mixColumns': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result += treatSB_MC_SR(temp, block)
-	block = result
-	printColor('## shiftRows')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
-	result = ''
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## mixColumns': flag = 1
+			if line == '## Round': flag = 1
 			if line == '## end': flag = 0
 			if flag:
 				if line[0] <> '#':
 					temp.append(line)
 		result += treatSB_MC_SR(temp, block)
 	block = result
-	printColor('## mixColumns')
+	printColor('## subBytes and shiftRows')
 	print block, len(block)
 	print bin2hex(block), len(bin2hex(block))
 
@@ -290,9 +258,6 @@ def controlCipheringProcess():
 if __name__ == "__main__":
 	generateFiles()
 	controlCipheringProcess()
-
-
-
 
 
 
