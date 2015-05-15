@@ -67,7 +67,8 @@ def extractRound(file):
 def countMonomes(tab):
 	degree = [0, 0, 0, 0, 0, 0, 0, 0]
 	for monome in tab:
-		degree[monome.count('1')-1] += 1
+		tmp = monome.count('1')
+		degree[tmp] += 1
 	return degree
 
 
@@ -89,9 +90,9 @@ def monomesGraph(tab):
 
 	xscale = [i for i in xrange(1, 9, 1)] # degree of monome
 	yscale = [i for i in xrange(0, blockSize, 15)] # bit number
-	zscale = [i for i in xrange(0, max, 2)] # number of monome
+	zscale = [i for i in xrange(0, max, 10)] # number of monome
 
-	fig = mpl.figure() # fig definition
+	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition
 	ax = fig.add_subplot(111, projection='3d')
 
 	for i in xrange(blockSize):
@@ -101,17 +102,17 @@ def monomesGraph(tab):
 		ax.bar(xscale, tab[i], zs=i, zdir='y', align='center', color=cs, alpha=0.8)
 	ax.plot(nvx, nvy, zs=nvz, zdir='z', linewidth=4, color='r', marker='s', label='Normal distribution', alpha=1.0)
 
-	ax.set_xlabel('degree of monome')
+	ax.set_xlabel('Degre des monomes')
 	ax.set_xticks(xscale)
-	ax.set_xticklabels(xscale, rotation=0, ha='center', va='center', size=8)
+	ax.set_xticklabels(xscale, rotation=0, ha='center', va='center', size=6)
 
-	ax.set_ylabel('bit number')
+	ax.set_ylabel('Numero du bit')
 	ax.set_yticks(yscale)
-	ax.set_yticklabels(yscale, rotation=-90, ha='center', va='center', size=8)
+	ax.set_yticklabels(yscale, rotation=-90, ha='center', va='center', size=6)
 
-	ax.set_zlabel('number of monome')
+	ax.set_zlabel('Nombre de monomes')
 	ax.set_zticks(zscale)
-	ax.set_zticklabels(zscale, rotation=0, ha='center', va='center', size=8)
+	ax.set_zticklabels(zscale, rotation=0, ha='center', va='center', size=6)
 
 	ax.legend(loc='lower left', prop={'size':8})
 
@@ -119,7 +120,7 @@ def monomesGraph(tab):
 	for degree in [10, 230, 300, 350]:
 		ax.view_init(4, degree)
 		extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-		mpl.savefig('graph_'+str(degree)+'.png', dpi=90, bbox_inches=extent, pad_inches=0)
+		mpl.savefig('graph_'+str(degree)+'.png', dpi=100, bbox_inches=extent, pad_inches=0)
 	mpl.show()
 
 
@@ -195,6 +196,7 @@ def chi2Test(aes, mean):
 
 if __name__ == "__main__":
 #	displayLatexTable()
+
 	aes = displayTableAES()
 	mean = computeMean(8)
 	chi2Test(aes, mean)
