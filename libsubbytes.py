@@ -24,61 +24,9 @@ sbox = [['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b',
 def generateSboxTruthTable():
 	"""Returns the truth table of SBOX."""
 	result = []
-	for i in range(2**octetSize):
+	for i in xrange(2**octetSize):
 		tmp = int2hex(i)
 		result.append(hex2bin(sbox[int(tmp[0], 16)][int(tmp[1], 16)]))
-	return result
-
-
-def generateEquaMonomes(rm):
-	result = []
-	for b in range(octetSize):
-		tmp = ''
-		for i in range(2**octetSize):
-			if rm[b][i] == '1':
-				if i == 0:
-					tmp += '1+' # constant
-				else:
-					tmp += bin2monome(int2bin(i)) + '+'
-		result.append(tmp.rstrip('+'))
-	return result
-
-
-def traiteMonomes(equa, cpt):
-	result =''
-	tmp = equa.split('+')
-	for m in tmp:
-		if m == '1':
-			result += '1'
-		else:
-			t = m.split('x_')
-			for item in t:
-				if item <> '':
-					result += 'x_' + str(int(item) + ((cpt-1)*octetSize))
-		result += '+'
-	return result.rstrip('+')
-
-
-def generateEquaMonomesAES(equations):
-	result = []
-	cpt = 0
-	for i in range(128):
-		if i%octetSize == 0:
-			cpt += 1
-		result.append(traiteMonomes(equations[i%octetSize], cpt))
-	return result
-
-
-def generateBinaryMonomes(equations):
-	result = []
-	for i in range(len(equations)):
-		temp = ''
-		for monome in equations[i].split('+'):
-			if monome == '1':
-				temp += '1\t' + monome2bin('') + '\r\n'
-			else:
-				temp += '0\t' + monome2bin(monome) + '\r\n'
-		result.append(temp)
 	return result
 
 

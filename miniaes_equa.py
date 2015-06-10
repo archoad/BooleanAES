@@ -10,8 +10,6 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = xrange(30, 38)
 directory = 'mini_AES_files/'
 
 
-
-
 def printColor(string, color=RED):
 	print '\033[1;%dm%s\033[0m' % (color, string)
 
@@ -21,24 +19,6 @@ def blockToStr(block):
 	for i in xrange(blockSize):
 		if ((i % nibbleSize) == 0) & (i <> 0): result += ' '
 		result += block[i]
-	return result
-
-
-def xorTab(t1, t2):
-	"""Takes two tabs t1 and t2 of same lengths and returns t1 XOR t2."""
-	result = ''
-	for i in xrange(len(t1)):
-		result += str(int(t1[i]) ^ int(t2[i]))
-	return result
-
-
-def xorList(mylist):
-	result = mylist[0]
-	cpt = 0
-	for i in xrange(len(mylist)):
-		if cpt < len(mylist)-1:
-			result = xorTab(result, mylist[cpt+1])
-		cpt += 1
 	return result
 
 
@@ -260,10 +240,19 @@ def controlCipheringProcess():
 	printColor('## Cipher block %s' % blockToStr(block), BLUE)
 
 
+def tests():
+	(k0, k1, k2) = generateRoundsKeysTruthTable()
+	mtk1 = generateMoebiusTransform(k1)
+	print mtk1, len(mtk1)
+
+	for i in xrange(blockSize):
+		equa = definesMonomeBlock(mtk1[i])
+		print equa
 
 
 
 
 if __name__ == "__main__":
+	tests()
 #	generateFiles()
-	controlCipheringProcess()
+#	controlCipheringProcess()

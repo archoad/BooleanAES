@@ -2,92 +2,63 @@
 # -*- coding: utf-8 -*-
 
 
-import os
 from libmain import *
 from libsubbytes import *
 from libmixcolumns import *
+from libkeyexpansion import *
 
 
-def createAESFiles():
-	global directory
-	d = os.path.dirname(directory)
-	if not os.path.exists(d):
-		printColor('## Create directory %s' % (d), GREEN)
-		os.mkdir(directory)
-	else:
-		printColor('## Directory %s already exist' % (d), RED)
+
+
+def writeEndFlag():
 	for i in xrange(blockSize):
-		f = createFile('f_%s.txt' % (intToThreeChar(i)))
-		closeFile(f)
-	return 1
-
-
-def generateGenericBlock(c):
-	"""Generate a tab containing blockSize variables
-	usage: generateGenericBlock('x') return ['x_0', 'x_1', 'x_2', 'x_3', 'x_4', ..., 'x_126', 'x_127']"""
-	result = []
-	for i in xrange(blockSize):
-		result.append('%s_%s' % (c, i))
-	return result
-
-
-def generateBitsBlock(c):
-	"""Generate a string containing blockSize bits
-	usage: generateGenericBlock('x_3') return 00010000000...00000"""
-	result = ''
-	tmp = int(c.split('_')[1])
-	for i in xrange(blockSize):
-		if i == tmp:
-			result += '1'
-		else:
-			result += '0'
-	return result
-
-
-def generateAllBits():
-	"""Generate a list containing 128 input corresponding to the
-		conversion of integer to binary for i in xrange(blockSize)"""
-	result = []
-	tmp = []
-	for i in xrange(blockSize):
-		tmp.append('0')
-	for i in xrange(blockSize):
-		t = ''
-		tmp[i] = '1'
-		result.append('0\t' + t.join(tmp) + '\r\n')
-		tmp[i] = '0'
-	return result
-
-
-def addRoundKey(block, keyBlock):
-	printColor('## AddRoundKey', GREEN)
-	result = []
-	for i in xrange(blockSize):
-		result.append('%s+%s' % (block[i], keyBlock[i]))
 		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## addRoundKey\r\n')
-		f.write('0\t%s\r\n0\t%s\r\n' % (generateBitsBlock(block[i]), generateBitsBlock(keyBlock[i])))
+		f.write('## end\n')
 		closeFile(f)
+
+
+def addRoundKey(numRound):
+	printColor('## AddRoundKey %s' % numRound, GREEN)
+	result = []
+	if numRound == 0:
+		result = generateKn(generateW0(), generateW1(), generateW2(), generateW3())
+		clearBlock = generateGenericBlock('x')
+		for i in xrange(blockSize):
+			f = openFile('f_%s.txt' % (intToThreeChar(i)))
+			f.write('## addRoundKey0\n')
+			f.write('0\t%s\n0\t%s\n' % (generateBitsBlock(clearBlock[i]), generateBitsBlock(result[i])))
+			closeFile(f)
+	else:
+		if numRound == 1:
+			result = generateKn(generateW4(), generateW5(), generateW6(), generateW7())
+		elif numRound == 2:
+			result = generateKn(generateW8(), generateW9(), generateW10(), generateW11())
+		binMon = generateBinaryMonomes(result)
+		for i in xrange(blockSize):
+			f = openFile('f_%s.txt' % (intToThreeChar(i)))
+			f.write('## addRoundKey%s\n' % numRound)
+			f.write(binMon[i])
+			closeFile(f)
 	return result
 
 
-def subBytes():
-	printColor('## SubBytes', GREEN)
+def subBytes(numRound):
+	printColor('## SubBytes %s' % numRound, GREEN)
 	tt = generateSboxTruthTable()
-	rm = generateMoebiusTransform(tt)
-	equations = generateEquaMonomes(rm)
+	mt = generateMoebiusTransform(tt)
+	equations = generateEquaMonomes(mt)
 	equaAES = generateEquaMonomesAES(equations)
 	binMon = generateBinaryMonomes(equaAES)
 	for i in xrange(blockSize):
 		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## subBytes\r\n')
+		f.write('## subBytes%s\n' % numRound)
 		f.write(binMon[i])
 		closeFile(f)
 	return equaAES
 
 
-def shiftRows():
-	printColor('## ShiftRows', GREEN)
+def shiftRows(numRound):
+	printColor('## ShiftRows %s' % numRound, GREEN)
 	Nb = 4
 	result = []
 	SR = []
@@ -105,8 +76,8 @@ def shiftRows():
 			SR.append(generateBitsBlock('x_' + str((numByte*octetSize)+i)))
 	for i in xrange(blockSize):
 		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## shiftRows\r\n')
-		f.write('0\t' + SR[i] + '\r\n')
+		f.write('## shiftRows%s\n' % numRound)
+		f.write('0\t' + SR[i] + '\n')
 		closeFile(f)
 	for i in xrange(blockSize):
 		for bit in xrange(blockSize):
@@ -115,8 +86,8 @@ def shiftRows():
 	return equa
 
 
-def mixColumns():
-	printColor('## MixColumns', GREEN)
+def mixColumns(numRound):
+	printColor('## MixColumns %s' % numRound, GREEN)
 	equa = []
 	result = ['' for i in xrange(blockSize)]
 	tt2 = generateMultBy02TruthTable()
@@ -141,13 +112,12 @@ def mixColumns():
 
 	for i in xrange(blockSize):
 		f = openFile('f_%s.txt' % (intToThreeChar(i)))
-		f.write('## mixColumns\r\n')
+		f.write('## mixColumns%s\n' % numRound)
 		f.write(result[i])
-		f.write('## end\r\n')
 		closeFile(f)
 
 	for i in xrange(blockSize):
-		tmp = result[i].split('\r\n')
+		tmp = result[i].split('\n')
 		tmp.pop()
 		eq = ''
 		for monome in tmp:
@@ -162,20 +132,20 @@ def mixColumns():
 	return equa
 
 
-def treatAddRoundKey(ARK, key, clearBlock):
+def treatAddRoundKey(value, key, clearBlock):
 	result = ''
 	for i in xrange(blockSize):
-		if int(ARK[0].split('\t')[1][i]):
+		if int(value[0].split('\t')[1][i]):
 			result += xorTab(key[i], clearBlock[i])
 		else:
 			result += '0'
 	return result
 
 
-def treatSB_MC_SR(SB_MC_SR, block):
+def treatBlock(value, block):
 	"""Each monomial on the line is multiplied and each line is XORed"""
 	result = []
-	for polynom in SB_MC_SR:
+	for polynom in value:
 		t = []
 		tmp = polynom.split('\t')
 		if tmp[0] == '1':
@@ -188,108 +158,136 @@ def treatSB_MC_SR(SB_MC_SR, block):
 	return str(reduce(lambda x, y: x^y, result))
 
 
+def controlARK0(key, clearBlock):
+	result = []
+	flag = 0
+	for i in xrange(blockSize):
+		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
+		temp = []
+		for line in allLines:
+			line = line.rstrip('\n')
+			if line == '## addRoundKey0': flag = 1
+			if line == '## subBytes0': flag = 0
+			if flag:
+				if line[0] <> '#':
+					temp.append(line)
+		result.append(treatAddRoundKey(temp, key, clearBlock))
+	block = xorList(result)
+	printColor('## addRoundKey0')
+	print block, len(block)
+	print bin2hex(block), len(bin2hex(block))
+	return block
+
+
+def controlBlock(start, end, block, key=None):
+	flag = 0
+	result = ''
+	for i in xrange(blockSize):
+		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
+		temp = []
+		for line in allLines:
+			line = line.rstrip('\n')
+			if line == start: flag = 1
+			if line == end: flag = 0
+			if flag:
+				if line[0] <> '#':
+					temp.append(line)
+		if (key == None):
+			result += treatBlock(temp, block)
+		else:
+			result += treatBlock(temp, key)
+
+	if (key == None):
+		block = result
+	else:
+		block = xorTab(result, block)
+	printColor(start)
+	print block, len(block)
+	print bin2hex(block), len(bin2hex(block))
+	return block
+
+
 def generateFiles():
 	createAESFiles()
-	clearBlock = generateGenericBlock('x')
-	keyBlock = generateGenericBlock('k')
-#	print clearBlock, len(clearBlock)
-#	print keyBlock, len(keyBlock)
 
-	step1 = addRoundKey(clearBlock, keyBlock)
+	step1 = addRoundKey(0)
 #	print step1, len(step1)
 #	bitToLatex(step1[127])
+	step2 = subBytes(0)
+	step3 = shiftRows(0)
+	step4 = mixColumns(0)
+	step5 = addRoundKey(1)
+	step6 = subBytes(1)
+	step7 = shiftRows(1)
+	step8 = mixColumns(1)
+	step9 = addRoundKey(2)
+	step10 = subBytes(2)
+	step11 = shiftRows(2)
+	step12 = mixColumns(2)
 
-	step2 = subBytes()
-#	print step2, len(step2)
-#	bitToLatex(step2[127])
-
-	step3 = shiftRows()
-#	print step3, len(step3)
-#	bitToLatex(step3[127])
-
-	step4 = mixColumns()
-#	print step4, len(step4)
-#	bitToLatex(step4[127])
-
+	writeEndFlag()
 	printColor('## Files generated', RED)
 
 
 def controlCipheringProcess():
 	clearBlock = '3243f6a8885a308d313198a2e0370734'
 	key = '2b7e151628aed2a6abf7158809cf4f3c'
+	fipsAddRoundKey0 = '193de3bea0f4e22b9ac68d2ae9f84808'
+	fipsMixColumn0 = '046681e5e0cb199a48f8d37a2806264c'
+	fipsAddRoundKey1 = 'a49c7ff2689f352b6b5bea43026a5049'
+	fipsMixColumn1 = '584dcaf11b4b5aacdbe7caa81b6bb0e5'
+	fipsAddRoundKey2 = 'aa8f5f0361dde3ef82d24ad26832469a'
+
+#	clearBlock = '00112233445566778899aabbccddeeff'
+#	key = '000102030405060708090a0b0c0d0e0f'
+#	fipsAddRoundKey0 = '00102030405060708090a0b0c0d0e0f0'
+#	fipsMixColumn0 = '5f72641557f5bc92f7be3b291db9f91a'
+#	fipsAddRoundKey1 = '89d810e8855ace682d1843d8cb128fe4'
+#	fipsMixColumn1 = 'ff87968431d86a51645151fa773ad009'
+#	fipsAddRoundKey2 = '4915598f55e5d7a0daca94fa1f0a63f7'
+
 	printColor('## Clear block %s' % (clearBlock), BLUE)
 	printColor('## Key block %s' % (key), BLUE)
 	key = hexToBinBlock(key)
 	clearBlock = hexToBinBlock(clearBlock)
-	result = []
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## addRoundKey': flag = 1
-			if line == '## subBytes': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result.append(treatAddRoundKey(temp, key, clearBlock))
-	block = xorList(result)
-	printColor('## addRoundKey')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
-	result = ''
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## subBytes': flag = 1
-			if line == '## shiftRows': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result += treatSB_MC_SR(temp, block)
-	block = result
-	printColor('## subBytes')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
-	result = ''
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## shiftRows': flag = 1
-			if line == '## mixColumns': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result += treatSB_MC_SR(temp, block)
-	block = result
-	printColor('## shiftRows')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
-	result = ''
-	for i in xrange(blockSize):
-		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
-		temp = []
-		for line in allLines:
-			line = line.rstrip('\r\n')
-			if line == '## mixColumns': flag = 1
-			if line == '## end': flag = 0
-			if flag:
-				if line[0] <> '#':
-					temp.append(line)
-		result += treatSB_MC_SR(temp, block)
-	block = result
-	printColor('## mixColumns')
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
+
+	block = controlARK0(key, clearBlock)
+	print('%s (FIPS result)' % (fipsAddRoundKey0))
+
+	block = controlBlock('## subBytes0', '## shiftRows0', block)
+	block = controlBlock('## shiftRows0', '## mixColumns0', block)
+	block = controlBlock('## mixColumns0', '## addRoundKey1', block)
+	print('%s (FIPS result)' % (fipsMixColumn0))
+	block = controlBlock('## addRoundKey1', '## subBytes1', block, key)
+	print('%s (FIPS result)' % (fipsAddRoundKey1))
+	block = controlBlock('## subBytes1', '## shiftRows1', block)
+	block = controlBlock('## shiftRows1', '## mixColumns1', block)
+	block = controlBlock('## mixColumns1', '## addRoundKey2', block)
+	print('%s (FIPS result)' % (fipsMixColumn1))
+	block = controlBlock('## addRoundKey2', '## subBytes2', block, hexToBinBlock('a0fafe1788542cb123a339392a6c7605'))
+#	block = controlBlock('## addRoundKey2', '## subBytes2', block, hexToBinBlock('d6aa74fdd2af72fadaa678f1d6ab76fe'))
+	print('%s (FIPS result)' % (fipsAddRoundKey2))
+	block = controlBlock('## subBytes2', '## shiftRows2', block)
+	block = controlBlock('## shiftRows2', '## mixColumns2', block)
+	block = controlBlock('## mixColumns2', '## end', block)
+
+
+
+def testKeyExpansion():
+	w4 = generateW4()
+	testWord(w4, '2b7e151628aed2a6abf7158809cf4f3c') # R0 key (w0, w1, w2, w3)
+	w8 = generateW8()
+	testWord(w8, 'a0fafe1788542cb123a339392a6c7605') # R1 key (w4, w5, w6, w7)
+	w12 = generateW12()
+	testWord(w12, 'f2c295f27a96b9435935807a7359f67f') # R2 key (w8, w9, w10, w11)
+
+
 
 
 if __name__ == "__main__":
-	generateFiles()
-	controlCipheringProcess()
+	testKeyExpansion()
+#	generateFiles()
+#	controlCipheringProcess()
 
 
 

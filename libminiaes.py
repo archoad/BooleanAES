@@ -129,6 +129,17 @@ def xorTab(t1, t2):
 	return result
 
 
+def xorList(mylist):
+	result = mylist[0]
+	cpt = 0
+	for i in xrange(len(mylist)):
+		if cpt < len(mylist)-1:
+			result = xorTab(result, mylist[cpt+1])
+		cpt += 1
+	return result
+
+
+
 def equaToLatex(equa):
 	result = '$'
 	tmp = equa.split('+');
@@ -288,7 +299,7 @@ def generateRoundOneTruthTable():
 
 
 def generateRoundTwoTruthTable():
-	"""Returns the truth table of the mini aes first round.
+	"""Returns the truth table of the mini aes second round.
 	Equation is C = NS + SR"""
 	result = []
 	ns_tt = generateNibbleSubTruthTable()
