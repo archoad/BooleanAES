@@ -1,9 +1,8 @@
 
-from multiprocessing import Pool
+
 from libmain import *
 
-# calculation time
-# simple process = 1690seconds * 25
+
 
 
 sbox = [['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b', 'fe', 'd7', 'ab', '76'],
@@ -262,9 +261,13 @@ def generateKn(w0, w1, w2, w3):
 	return result
 
 
-
-
-
+def testKeyExpansion():
+	w4 = generateW4()
+	testWord(w4, '2b7e151628aed2a6abf7158809cf4f3c') # R0 key (w0, w1, w2, w3)
+	w8 = generateW8()
+	testWord(w8, 'a0fafe1788542cb123a339392a6c7605') # R1 key (w4, w5, w6, w7)
+	w12 = generateW12()
+	testWord(w12, 'f2c295f27a96b9435935807a7359f67f') # R2 key (w8, w9, w10, w11)
 
 
 def testWord(w, key):
@@ -290,7 +293,21 @@ def testWord(w, key):
 	print result, binWord2hex(result)
 
 
-
-
-
+def addRoundKey(numRound, val):
+	printColor('## AddRoundKey%s' % numRound, GREEN)
+	fname = (fileNameEnc if val == 'enc' else fileNameDec)
+	result = []
+	if numRound == 0:
+		result = generateKn(generateW0(), generateW1(), generateW2(), generateW3())
+	elif numRound == 1:
+		result = generateKn(generateW4(), generateW5(), generateW6(), generateW7())
+	elif numRound == 2:
+		result = generateKn(generateW8(), generateW9(), generateW10(), generateW11())
+	binMon = generateBinaryMonomes(result)
+	for i in xrange(blockSize):
+		f = openFile(fname+'%s.txt' % intToThreeChar(i))
+		f.write('## addRoundKey%s\n' % numRound)
+		f.write(binMon[i])
+		closeFile(f)
+	return result
 

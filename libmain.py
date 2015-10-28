@@ -9,6 +9,8 @@ octetSize = 8 # SBOX takes 8 bits as input
 wordSize = 32
 blockSize = 128 #16 for mini-aes and 128 for aes
 directory = 'AES_files/'
+fileNameEnc = 'f_enc_'
+fileNameDec = 'f_dec_'
 
 
 def hex2bin(h):
@@ -183,21 +185,18 @@ def intToThreeChar(i):
 
 def createFile(name):
 	"""Create file named by "name" for data"""
-	global directory
 	f = open(directory+name, 'w')
 	return f
 
 
 def openFile(name):
 	"""Open file named by "name" for data"""
-	global directory
 	f = open(directory+name, 'a')
 	return f
 
 
 def readFile(name):
 	"""Read file called name and return a list in which one element corresponds to a line"""
-	global directory
 	f = open(directory+name, 'r')
 	result = f.readlines()
 	closeFile(f)
@@ -266,7 +265,9 @@ def moebiusTransform(tab):
 
 
 def generateMoebiusTransform(tt):
-	"""Creates octetSize strings, each containing the result of Moebius transform for a boolean function of tab."""
+	"""Creates octetSize strings, each containing the result of Moebius
+	transform for a boolean function of tab. The result is a tab of octetSize
+	cases each one containing 2**octetSize bits. Each case describe a bit of the function"""
 	result = []
 	for i in xrange(octetSize):
 		tmp = ''
@@ -295,18 +296,26 @@ def bitToLatex(bit):
 	print bit
 
 
-def createAESFiles():
-	global directory
+def createAESFiles(val):
 	d = os.path.dirname(directory)
 	if not os.path.exists(d):
 		printColor('## Create directory %s' % (d), GREEN)
 		os.mkdir(directory)
 	else:
 		printColor('## Directory %s already exist' % (d), RED)
+	fname = (fileNameEnc if val == 'enc' else fileNameDec)
 	for i in xrange(blockSize):
-		f = createFile('f_%s.txt' % (intToThreeChar(i)))
+		f = createFile(fname+'%s.txt' % (intToThreeChar(i)))
 		closeFile(f)
 	return 1
+
+
+def writeEndFlag(val):
+	fname = (fileNameEnc if val == 'enc' else fileNameDec)
+	for i in xrange(blockSize):
+		f = openFile(fname+'%s.txt' % intToThreeChar(i))
+		f.write('## end\n')
+		closeFile(f)
 
 
 def generateGenericWord(s, c):
@@ -353,5 +362,34 @@ def generateAllBits():
 		result.append('0\t' + t.join(tmp) + '\n')
 		tmp[i] = '0'
 	return result
+
+
+def extractBlock(file, startBlock, endBlock):
+	tmp = []
+	flag = 0
+	allLines = readFile(file)
+	for line in allLines:
+		line = line.rstrip('\n')
+		if line == startBlock: flag = 1
+		if line == endBlock: flag = 0
+		if flag:
+			if line[0] <> '#':
+				tmp.append(line)
+	return tmp
+
+
+def displayTruthTable(tt):
+	for i in xrange(len(tt)):
+		print i, '\t', int(tt[i], 2), '\t', int2bin(i), '\t', tt[i]
+
+
+def displayEqua(tt):
+	mt = generateMoebiusTransform(tt)
+	equa = generateEquaMonomes(mt)
+	for i in xrange(octetSize):
+		equa2sagemath(equa[i])
+		print i, '\t', equa2sagemath(equa[i])
+
+
 
 
