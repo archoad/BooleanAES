@@ -12,6 +12,30 @@ from aes_equa_enc import *
 from aes_equa_dec import *
 
 
+def testAESdirectory(val):
+	d = os.path.dirname(directory)
+	if os.path.exists(d):
+		os.rmdir(directory)
+
+
+
+def encryptionProcess(step=True):
+	if (step):
+		generateEncStepsFiles()
+		controlEncStepsFiles()
+	else:
+		generateEncFullFiles()
+		controlEncFullFiles()
+
+
+def decryptionProcess(step=True):
+	if (step):
+		generateDecStepsFiles()
+		controlDecStepsFiles()
+	else:
+		generateDecFullFiles()
+		controlDecFullFiles()
+
 
 
 
@@ -20,15 +44,3 @@ from aes_equa_dec import *
 
 if __name__ == "__main__":
 	#testKeyExpansion()
-
-	#generateEncStepsFiles()
-	#controlEncStepsFiles()
-
-	#generateEncFullFiles()
-	#controlEncFullFiles()
-
-	#generateDecStepsFiles()
-	#controlDecStepsFiles()
-
-	generateDecFullFiles()
-	controlDecFullFiles()

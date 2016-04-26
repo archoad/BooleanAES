@@ -97,7 +97,7 @@ def monomesGraph(tab):
 	ax.set_zlabel('Nombre de monomes')
 	ax.set_zticks(zscale)
 	ax.set_zticklabels(zscale, rotation=0, ha='center', va='center', size=8)
-	
+
 	ax.legend(loc='lower left', prop={'size':8})
 	ax.grid(True)
 
@@ -119,14 +119,7 @@ def displayTabMeanVariance(n):
 if __name__ == "__main__":
 	displayTabMeanVariance(octetSize)
 	equa = generateEqua()
-#	for i in xrange(len(equa)):
-#		print i, '\t', equa2sagemath(equa[i])
+	#for i in xrange(len(equa)):
+	#	print i, '\t', equa2sagemath(equa[i])
 	tab = numberOfMonomes(equa)
 	monomesGraph(tab)
-
-
-
-
-
-
-

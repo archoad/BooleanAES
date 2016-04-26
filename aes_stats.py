@@ -16,6 +16,8 @@ from libsubbytes import *
 from libshiftrows import *
 from libmixcolumns import *
 from libkeyexpansion import *
+from aes_equa_enc import *
+from aes_equa_dec import *
 
 
 
@@ -159,14 +161,8 @@ def chi2Test(aes, mean):
 
 if __name__ == "__main__":
 #	displayLatexTable('dec', '## invSubBytes2', '## addRoundKey2')
-	aes = displayTableAES('dec', '## Round2', '## addRoundKey2')
+	aes = displayTableAES('dec', '## addRoundKey10', '## end')
 	mean = computeMean(8)
 	chi2Test(aes, mean)
 	computeStatDistance(aes, mean)
 	monomesGraph(aes)
-
-
-
-
-
-
