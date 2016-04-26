@@ -25,16 +25,37 @@ def hex2bin(h):
 	return tmp
 
 
-def wordHex2bin(h):
-	"""Returns the string of wordSize bits representation of hexadecimal h.
-	usage: hex2bin('01000000') --> 00000001000000000000000000000000"""
-	tmp = ''
-	h = bin(int(h, 16)).lstrip('0b')
-	for cpt in xrange(wordSize-len(h)):
-		tmp += '0'
-	for b in h:
-		tmp += b
-	return tmp
+def largeHex2Bin(h):
+	"""Convert a hex represntation in a binary representation
+	usage: largeHex2Bin('00112233') = 00000000000100010010001000110011"""
+	result = ''
+	for i in xrange(0,len(h),2):
+		result += hex2bin(h[i] + h[i+1])
+	return result
+
+
+def wordBin2hex(b):
+	"""Returns the string of the hexadecimal representation of binary b.
+	usage: wordBin2hex('00001001110011110100111100111100') --> 09cf4f3c"""
+	tmp = []
+	val = ''
+	result = ''
+	for i in xrange(wordSize):
+		if (i % octetSize == 0) and (i <> 0):
+			tmp.append(val)
+			val = ''
+		val += b[i]
+	tmp.append(val)
+	for byte in tmp:
+		i = int(byte, 2)
+		if (i == 0):
+			buff = '00'
+		elif ( i < 16):
+			buff = '0' + hex(i).lstrip('0x')
+		else:
+			buff = hex(i).lstrip('0x').rstrip('L')
+		result += buff
+	return result
 
 
 def bin2byte(b):
@@ -138,13 +159,6 @@ def xorList(mylist):
 		if cpt < len(mylist)-1:
 			result = xorTab(result, mylist[cpt+1])
 		cpt += 1
-	return result
-
-
-def hexToBinBlock(h):
-	result = ''
-	for i in xrange(0,len(h),2):
-		result += hex2bin(h[i] + h[i+1])
 	return result
 
 
@@ -391,5 +405,39 @@ def displayEqua(tt):
 		print i, '\t', equa2sagemath(equa[i])
 
 
+def treatBlock(value, block):
+	"""Each monomial on the line is multiplied and each line is XORed"""
+	result = []
+	for polynom in value:
+		t = []
+		tmp = polynom.split('\t')
+		if tmp[0] == '1':
+			result.append(int(tmp[0]))
+		else:
+			for i in xrange(blockSize):
+				if tmp[1][i] == '1':
+					t.append(int(block[i]))
+			result.append(reduce(lambda x, y: x&y, t))
+	return str(reduce(lambda x, y: x^y, result))
 
 
+def controlBlock(mode, start, end, block, key=None):
+	flag = 0
+	result = ''
+	for i in xrange(blockSize):
+		fname = (fileNameEnc if mode == 'enc' else fileNameDec)
+		file = fname+'%s.txt' % intToThreeChar(i)
+		temp = extractBlock(file, start, end)
+		if (key == None):
+			result += treatBlock(temp, block)
+		else:
+			result += treatBlock(temp, key)
+
+	if (key == None):
+		block = result
+	else:
+		block = xorTab(result, block)
+	printColor(start)
+	print block, len(block)
+	print bin2hex(block), len(bin2hex(block))
+	return block

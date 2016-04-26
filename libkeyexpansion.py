@@ -23,40 +23,7 @@ sbox = [['63', '7c', '77', '7b', 'f2', '6b', '6f', 'c5', '30', '01', '67', '2b',
 	['8c', 'a1', '89', '0d', 'bf', 'e6', '42', '68', '41', '99', '2d', '0f', 'b0', '54', 'bb', '16']]
 
 
-def hex2binBlock(h):
-	"""Returns the string of octetSize bits representation of hexadecimal h.
-	usage: hex2bin('09cf4f3c') --> 00001001110011110100111100111100"""
-	tmp = ''
-	h = bin(int(h, 16)).lstrip('0b')
-	for cpt in xrange(blockSize-len(h)):
-		tmp += '0'
-	for b in h:
-		tmp += b
-	return tmp
-
-
-def binWord2hex(b):
-	"""Returns the string of the hexadecimal representation of binary b.
-	usage: bin2hex('00001001110011110100111100111100') --> 09cf4f3c"""
-	tmp = []
-	val = ''
-	result = ''
-	for i in xrange(wordSize):
-		if (i % octetSize == 0) and (i <> 0):
-			tmp.append(val)
-			val = ''
-		val += b[i]
-	tmp.append(val)
-	for byte in tmp:
-		i = int(byte, 2)
-		if (i == 0):
-			buff = '00'
-		elif ( i < 16):
-			buff = '0' + hex(i).lstrip('0x')
-		else:
-			buff = hex(i).lstrip('0x').rstrip('L')
-		result += buff
-	return result
+rconList = ['01', '02', '04', '08', '10', '20', '40', '80', '1b', '36']
 
 
 def getIndex(bit):
@@ -167,89 +134,19 @@ def xorWords(w1, w2):
 	return result
 
 
-def generateW0():
-	return generateGenericWord(wordSize*0, 'x')
-
-
-def generateW1():
-	return generateGenericWord(wordSize*1, 'x')
-
-
-def generateW2():
-	return generateGenericWord(wordSize*2, 'x')
-
-
-def generateW3():
-	return generateGenericWord(wordSize*3, 'x')
-
-
-def generateW4():
-	w4 = generateW3()
-	w4 = rotWord(w4)
-	w4 = subWord(w4, '01')
-	w0 = generateW0()
-	w4 = xorWords(w4, w0)
-	return w4
-
-
-def generateW5():
-	w5 = generateW4()
-	w1 = generateW1()
-	w5 = xorWords(w5, w1)
-	return w5
-
-
-def generateW6():
-	w6 = generateW5()
-	w2 = generateW2()
-	w6 = xorWords(w6, w2)
-	return w6
-
-
-def generateW7():
-	w7 = generateW6()
-	w3 = generateW3()
-	w7 = xorWords(w7, w3)
-	return w7
-
-
-def generateW8():
-	w8 = generateW3()
-	w8 = rotWord(w8)
-	w8 = subWord(w8, '02')
-	w0 = generateW0()
-	w8 = xorWords(w8, w0)
-	return w8
-
-
-def generateW9():
-	w9 = generateW8()
-	w1 = generateW1()
-	w9 = xorWords(w9, w1)
-	return w9
-
-
-def generateW10():
-	w10 = generateW9()
-	w2 = generateW2()
-	w10 = xorWords(w10, w2)
-	return w10
-
-
-def generateW11():
-	w11 = generateW10()
-	w3 = generateW3()
-	w11 = xorWords(w11, w3)
-	return w11
-
-
-def generateW12():
-	w12 = generateW3()
-	w12 = rotWord(w12)
-	w12 = subWord(w12, '04')
-	w0 = generateW0()
-	w12 = xorWords(w12, w0)
-	return w12
+def generateWord(num):
+	if (num < 4):
+		w = generateGenericWord(wordSize*num, 'x')
+	if (num >= 4):
+		if ((num % 4) == 0):
+			w = generateWord(3)
+			w = rotWord(w)
+			w = subWord(w, rconList[(num/4)-1])
+			w = xorWords(w, generateWord(0))
+		else:
+			w = generateWord(num-1)
+			w = xorWords(w, generateWord(num%4))
+	return w
 
 
 def generateKn(w0, w1, w2, w3):
@@ -262,17 +159,21 @@ def generateKn(w0, w1, w2, w3):
 
 
 def testKeyExpansion():
-	w4 = generateW4()
-	testWord(w4, '2b7e151628aed2a6abf7158809cf4f3c') # R0 key (w0, w1, w2, w3)
-	w8 = generateW8()
-	testWord(w8, 'a0fafe1788542cb123a339392a6c7605') # R1 key (w4, w5, w6, w7)
-	w12 = generateW12()
-	testWord(w12, 'f2c295f27a96b9435935807a7359f67f') # R2 key (w8, w9, w10, w11)
+	testWord(generateWord(4), '2b7e151628aed2a6abf7158809cf4f3c') # R0 key (w0, w1, w2, w3)
+	testWord(generateWord(8), 'a0fafe1788542cb123a339392a6c7605') # R1 key (w4, w5, w6, w7)
+	testWord(generateWord(12), 'f2c295f27a96b9435935807a7359f67f') # R2 key (w8, w9, w10, w11)
+	testWord(generateWord(16), '3d80477d4716fe3e1e237e446d7a883b') # R3 key (w12, w13, w14, w15)
+	testWord(generateWord(20), 'ef44a541a8525b7fb671253bdb0bad00') # R4 key (w16, w17, w18, w19)
+	testWord(generateWord(24), 'd4d1c6f87c839d87caf2b8bc11f915bc') # R5 key (w20, w21, w22, w23)
+	testWord(generateWord(28), '6d88a37a110b3efddbf98641ca0093fd') # R6 key (w24, w25, w26, w27)
+	testWord(generateWord(32), '4e54f70e5f5fc9f384a64fb24ea6dc4f') # R7 key (w28, w29, w30, w31)
+	testWord(generateWord(36), 'ead27321b58dbad2312bf5607f8d292f') # R8 key (w32, w33, w34, w35)
+	testWord(generateWord(40), 'ac7766f319fadc2128d12941575c006e') # R9 key (w36, w37, w38, w39)
 
 
 def testWord(w, key):
 	result = ''
-	k = hex2binBlock(key)
+	k = largeHex2Bin(key)
 	print k, key
 	for i in xrange(wordSize):
 		tmp = []
@@ -290,7 +191,7 @@ def testWord(w, key):
 		for item in tmp:
 			r.append(str(reduce(lambda x, y: int(x)&int(y), item)))
 		result += str(reduce(lambda x, y: int(x)^int(y), r))
-	print result, binWord2hex(result)
+	print result, wordBin2hex(result)
 
 
 def addRoundKey(numRound, val):
@@ -298,16 +199,32 @@ def addRoundKey(numRound, val):
 	fname = (fileNameEnc if val == 'enc' else fileNameDec)
 	result = []
 	if numRound == 0:
-		result = generateKn(generateW0(), generateW1(), generateW2(), generateW3())
+		result = generateKn(generateWord(0), generateWord(1), generateWord(2), generateWord(3))
 	elif numRound == 1:
-		result = generateKn(generateW4(), generateW5(), generateW6(), generateW7())
+		result = generateKn(generateWord(4), generateWord(5), generateWord(6), generateWord(7))
 	elif numRound == 2:
-		result = generateKn(generateW8(), generateW9(), generateW10(), generateW11())
+		result = generateKn(generateWord(8), generateWord(9), generateWord(10), generateWord(11))
+	elif numRound == 3:
+		result = generateKn(generateWord(12), generateWord(13), generateWord(14), generateWord(15))
+	elif numRound == 4:
+		result = generateKn(generateWord(16), generateWord(17), generateWord(18), generateWord(19))
+	elif numRound == 5:
+		result = generateKn(generateWord(20), generateWord(21), generateWord(22), generateWord(23))
+	elif numRound == 6:
+		result = generateKn(generateWord(24), generateWord(25), generateWord(26), generateWord(27))
+	elif numRound == 7:
+		result = generateKn(generateWord(28), generateWord(29), generateWord(30), generateWord(31))
+	elif numRound == 8:
+		result = generateKn(generateWord(32), generateWord(33), generateWord(34), generateWord(35))
+	elif numRound == 9:
+		result = generateKn(generateWord(36), generateWord(37), generateWord(38), generateWord(39))
+	elif numRound == 10:
+		result = generateKn(generateWord(40), generateWord(41), generateWord(42), generateWord(43))
 	binMon = generateBinaryMonomes(result)
+
 	for i in xrange(blockSize):
 		f = openFile(fname+'%s.txt' % intToThreeChar(i))
 		f.write('## addRoundKey%s\n' % numRound)
 		f.write(binMon[i])
 		closeFile(f)
 	return result
-
