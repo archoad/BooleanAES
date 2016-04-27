@@ -11,17 +11,17 @@ This script generates graphs displaying the distribution of randomly generated B
 
 Launch with the command:
 
-	./boolean_stats.py
+>./boolean_stats.py
 
 # mini-AES
 
-## miniaes.py
+## miniaes_equa.py
 
 This script implements the mini-AES algorithm in Python. We can use it for tests.
 
 Launch with the command:
 
-	./miniaes.py
+>./miniaes_equa.py
 
 ## miniaes_stats.py
 
@@ -29,9 +29,9 @@ This script generates graphs displaying the distribution of Boolean functions of
 
 Launch with the command:
 
-	./miniaes_stats.py
+>./miniaes_stats.py
 
-# AES
+# AES-128
 
 ##  aes_equa.py
 
@@ -39,7 +39,9 @@ This script implements the AES algorithm in Python. It generates the Boolean equ
 
 Launch with the command:
 
-	./aes_equa.py
+>./aes_equa.py
+
+At the end of the code (in main function) there is some options to generate boolean functions.
 
 ## aes_stats.py
 
@@ -47,4 +49,4 @@ This script generates graphs displaying the distribution of Boolean functions of
 
 Launch with the command:
 
-	./aes_stats.py
+>./aes_stats.py
