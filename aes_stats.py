@@ -16,8 +16,8 @@ from libsubbytes import *
 from libshiftrows import *
 from libmixcolumns import *
 from libkeyexpansion import *
-from aes_equa_enc import *
-from aes_equa_dec import *
+from libequaenc import *
+from libequadec import *
 
 
 
@@ -160,8 +160,11 @@ def chi2Test(aes, mean):
 
 
 if __name__ == "__main__":
+	mode = 'enc'
+	testAESdirectory()
+	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
 #	displayLatexTable('dec', '## invSubBytes2', '## addRoundKey2')
-	aes = displayTableAES('dec', '## addRoundKey10', '## end')
+	aes = displayTableAES(mode, '## addRoundKey10', '## end')
 	mean = computeMean(8)
 	chi2Test(aes, mean)
 	computeStatDistance(aes, mean)

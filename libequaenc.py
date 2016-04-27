@@ -132,6 +132,7 @@ def controlEncStepsFiles():
 
 
 def generateEncFullFiles():
+	printColor('## Ciphering process', YELLOW)
 	createAESFiles('enc')
 	addRoundKey(0, 'enc')
 	writeRoundEnc(0, subBytes(), shiftRows(), mixColumns())
@@ -157,7 +158,7 @@ def generateEncFullFiles():
 	writeEndFlag('enc')
 #	print currentStep, len(currentStep)
 #	bitToLatex(currentStep[127])
-	printColor('## Files generated', RED)
+	printColor('## Files generated', YELLOW)
 
 
 def controlEncFullFiles():

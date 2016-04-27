@@ -2,6 +2,7 @@
 
 import os
 import timeit
+import shutil
 
 
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = xrange(30, 38)
@@ -313,7 +314,7 @@ def bitToLatex(bit):
 def createAESFiles(val):
 	d = os.path.dirname(directory)
 	if not os.path.exists(d):
-		printColor('## Create directory %s' % (d), GREEN)
+		printColor('## Create directory %s' % (d), YELLOW)
 		os.mkdir(directory)
 	else:
 		printColor('## Directory %s already exist' % (d), RED)
@@ -322,6 +323,13 @@ def createAESFiles(val):
 		f = createFile(fname+'%s.txt' % (intToThreeChar(i)))
 		closeFile(f)
 	return 1
+
+
+def testAESdirectory():
+	d = os.path.dirname(directory)
+	if os.path.exists(d):
+		printColor('## Deleting directory %s' % (d), RED)
+		shutil.rmtree(directory)
 
 
 def writeEndFlag(val):

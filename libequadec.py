@@ -115,6 +115,7 @@ def controlDecStepsFiles():
 
 
 def generateDecFullFiles():
+	printColor('## Deciphering process', YELLOW)
 	createAESFiles('dec')
 	addRoundKey(10, 'dec')
 	writeRoundDec(9, invSubBytes(), invShiftRows())
@@ -149,7 +150,7 @@ def generateDecFullFiles():
 #	print currentStep, len(currentStep)
 #	bitToLatex(currentStep[127])
 	writeEndFlag('dec')
-	printColor('## Files generated', RED)
+	printColor('## Files generated', YELLOW)
 
 
 def controlDecFullFiles():
