@@ -38,7 +38,26 @@ def countMonomes(tab):
 	return degree
 
 
-def monomesGraph(tab):
+def repartitionMonomeGraph(tabEnc, tabDec, display=False):
+	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
+	ax = fig.add_subplot(111)
+	e = ax.plot(tabEnc, marker='.', label='Chiffrement', color='tan')
+	d = ax.plot(tabDec, marker='.', label='Dechiffrement', color='violet')
+	#mpl.axis([0, 127, min(tabEnc)-100, max(tabEnc)+100])
+	#ax.legend([e, d], ["Cipher", "Decipher"])
+	ax.grid(True)
+	ax.set_xlabel('Numero du bit')
+	ax.set_ylabel('Nombre de monomes')
+	for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+		item.set_fontsize(8)
+	ax.legend(loc='lower right', prop={'size':8})
+	if display:
+		mpl.show()
+	else:
+		mpl.savefig('graph_repart.png', dpi=100)
+
+
+def monomesGraph(tab, display=False):
 	rgb = [ # source http://colors.findthedata.com/saved_search/Pastel-Colors
 		[119.0/255.0, 190.0/255.0, 119.0/255.0], # pastel green
 		[244.0/255.0, 154.0/255.0, 194.0/255.0], # pastel magenta
@@ -63,9 +82,9 @@ def monomesGraph(tab):
 
 	xscale = [i for i in xrange(1, octetSize+1, 1)] # degree of monome
 	yscale = [i for i in xrange(0, blockSize, 15)] # bit number
-	zscale = [i for i in xrange(0, max, 10)] # number of monome
+	zscale = [i for i in xrange(0, max, 100)] # number of monome
 
-	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12)
+	fig = mpl.figure(figsize=(12, 9), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
 	ax = fig.add_subplot(111, projection='3d')
 
 	for i in xrange(blockSize):
@@ -86,12 +105,18 @@ def monomesGraph(tab):
 
 	ax.legend(loc='lower left', prop={'size':8})
 	ax.grid(True)
+	if display:
+		mpl.show()
+	else:
+		ax.view_init(15, -120)
+		extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+		mpl.savefig('graph.png', dpi=100, bbox_inches=extent, pad_inches=0)
+		#for degree in [10, 230, 300, 350]:
+		#	ax.view_init(4, degree)
+		#	extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+		#	mpl.savefig('graph_'+str(degree)+'.png', dpi=100, bbox_inches=extent, pad_inches=0)
 
-#	for degree in [10, 230, 300, 350]:
-#		ax.view_init(4, degree)
-#		extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-#		mpl.savefig('graph_'+str(degree)+'.png', dpi=100, bbox_inches=extent, pad_inches=0)
-	mpl.show()
+
 
 
 def displayLatexTable(val, start, end):
@@ -159,13 +184,47 @@ def chi2Test(aes, mean):
 #		print "Chi2=%s,\tp-value=%s,\tdf: %s" %(chi2, pv, dof)
 
 
+def countAllMonomes(fileName):
+	allLines = readFile(fileName)
+	tmp = []
+	for i in xrange(len(allLines)):
+		if not allLines[i].startswith('##'):
+			tmp.append(allLines[i])
+	return (countMonomes(tmp), len(allLines))
+
+
+def fullEquaCombinatoryAnalysis():
+	#testAESdirectory()
+	#generateEncFullFiles()
+	#generateDecFullFiles()
+	resultEnc = []
+	resultDec = []
+	nbMonomEnc = []
+	nbMonomDec = []
+	for bit in xrange(blockSize):
+		fileEnc = fileNameEnc+'%s.txt' % intToThreeChar(bit)
+		fileDec = fileNameDec+'%s.txt' % intToThreeChar(bit)
+		(repe, nme) = countAllMonomes(fileEnc)
+		(repd, nmd) = countAllMonomes(fileDec)
+		resultEnc.append(repe)
+		resultDec.append(repd)
+		nbMonomEnc.append(nme)
+		nbMonomDec.append(nmd)
+		print "bit number: %d" % (bit), nme, repe, nmd, repd
+	repartitionMonomeGraph(nbMonomEnc, nbMonomDec, False)
+	monomesGraph(resultEnc, False)
+	#monomesGraph(resultDec, False)
+
+
 if __name__ == "__main__":
-	mode = 'enc'
-	testAESdirectory()
-	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-#	displayLatexTable('dec', '## invSubBytes2', '## addRoundKey2')
-	aes = displayTableAES(mode, '## addRoundKey10', '## end')
-	mean = computeMean(8)
-	chi2Test(aes, mean)
-	computeStatDistance(aes, mean)
-	monomesGraph(aes)
+	fullEquaCombinatoryAnalysis()
+	#mode = 'dec'
+	#testAESdirectory()
+	#(generateEncStepsFiles() if mode == 'enc' else generateDecStepsFiles())
+	#(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
+	#displayLatexTable('dec', '## invSubBytes2', '## addRoundKey2')
+	#aes = displayTableAES(mode, '## addRoundKey10', '## end')
+	#mean = computeMean(8)
+	#chi2Test(aes, mean)
+	#computeStatDistance(aes, mean)
+	#monomesGraph(aes, True)

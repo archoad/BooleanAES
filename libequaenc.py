@@ -7,6 +7,23 @@ from libmixcolumns import *
 from libkeyexpansion import *
 
 
+def generateRoundEnc(equaSB, equaSR, equaMC):
+	resultSR = []
+	resultMC = []
+	for i in xrange(blockSize):
+		equaSR[i] = equaSR[i].split('_')
+		resultSR.append(equaSB[int(equaSR[i][1])])
+
+	for i in xrange(blockSize):
+		tmp = ''
+		for monomial in equaMC[i].split('+'):
+			tmp += resultSR[int(monomial.split('_')[1])]
+			tmp += '+'
+		resultMC.append(tmp.rstrip('+'))
+	binMon = generateBinaryMonomes(resultMC)
+	return resultMC
+
+
 def writeSubBytes(numRound):
 	printColor('## SubBytes %s' % numRound, GREEN)
 	equa = subBytes()

@@ -449,3 +449,19 @@ def controlBlock(mode, start, end, block, key=None):
 	print block, len(block)
 	print bin2hex(block), len(bin2hex(block))
 	return block
+
+def equaToLatex(equa):
+	result = '$'
+	tmp = equa.split('+');
+	for monomial in tmp:
+		if monomial == '1':
+			result += monomial + '+'
+		else:
+			ix = monomial.split('x')
+			for val in ix:
+				if val <> '':
+					result += 'x_{%s}' % (val.lstrip('_'))
+			result += '+'
+	result = result.rstrip('+') + '$'
+	result = result.replace('+', ' \oplus ')
+	return result

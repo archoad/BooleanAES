@@ -76,11 +76,33 @@ def createFullFiles(mode):
 	printColor('## Files generated', YELLOW)
 
 
+def someTests():
+w = generateWord(4)
+print w[0]
+print equaToLatex(w[0])
+print len(w)
+r = generateRoundEnc(subBytes(), shiftRows(), mixColumns())
+print r[0]
+print equaToLatex(r[0])
+print len(r)
+equa = invSubBytes()
+print equa[0]
+print len(equa)
+print equaToLatex(equa[0])
+equa = invShiftRows()
+print equa[0]
+print len(equa)
+print equaToLatex(equa[0])
+equa = invMixColumns()
+print equa[0]
+print len(equa)
+print equaToLatex(equa[0])
 
 
 if __name__ == "__main__":
+	#someTests()
 	#testKeyExpansion()
-	encryptionProcess()
-	decryptionProcess()
+	#encryptionProcess()
+	#decryptionProcess()
 	#createFullFiles('enc')
 	#createFullFiles('dec')
