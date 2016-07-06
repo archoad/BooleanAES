@@ -8,10 +8,10 @@ from libkeyexpansion import *
 
 
 def writeInvSubBytes(numRound):
-	printColor('## InvSubBytes %s' % numRound, GREEN)
+	printColor('## InvSubBytes%s' % numRound, GREEN)
 	equa = invSubBytes()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
 		f.write('## invSubBytes%s\n' % numRound)
 		f.write(binMon[i])
@@ -20,10 +20,10 @@ def writeInvSubBytes(numRound):
 
 
 def writeInvShiftRows(numRound):
-	printColor('## InvShiftRows %s' % numRound, GREEN)
+	printColor('## InvShiftRows%s' % numRound, GREEN)
 	equa = invShiftRows()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
 		f.write('## invShiftRows%s\n' % numRound)
 		f.write(binMon[i])
@@ -32,10 +32,10 @@ def writeInvShiftRows(numRound):
 
 
 def writeInvMixColumns(numRound):
-	printColor('## InvMixColumns %s' % numRound, GREEN)
+	printColor('## InvMixColumns%s' % numRound, GREEN)
 	equa = invMixColumns()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
 		f.write('## invMixColumns%s\n' % numRound)
 		f.write(binMon[i])
@@ -44,14 +44,14 @@ def writeInvMixColumns(numRound):
 
 
 def writeRoundDec(numRound, equaSB, equaSR):
-	printColor('## Round %s' % numRound, GREEN)
+	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
 	binMon = generateBinaryMonomes(resultSR)
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
 		f.write('## Round%s\n' % numRound)
 		f.write(binMon[i])
@@ -88,9 +88,9 @@ def controlDecStepsFiles():
 	clearBlock = '00112233445566778899aabbccddeeff'
 
 	printColor('## Cipher block %s' % (cipherBlock), BLUE)
-	print largeHex2Bin(cipherBlock), len(largeHex2Bin(cipherBlock))
+	print(largeHex2Bin(cipherBlock), len(largeHex2Bin(cipherBlock)))
 	printColor('## Key block %s' % (key), BLUE)
-	print largeHex2Bin(key), len(largeHex2Bin(key))
+	print(largeHex2Bin(key), len(largeHex2Bin(key)))
 
 	key = largeHex2Bin(key)
 	cipherBlock = largeHex2Bin(cipherBlock)
@@ -147,7 +147,7 @@ def generateDecFullFiles():
 	writeInvMixColumns(1)
 	writeRoundDec(0, invSubBytes(), invShiftRows())
 	addRoundKey(0, 'dec')
-#	print currentStep, len(currentStep)
+#	print(currentStep, len(currentStep))
 #	bitToLatex(currentStep[127])
 	writeEndFlag('dec')
 	printColor('## Files generated', YELLOW)
@@ -159,9 +159,9 @@ def controlDecFullFiles():
 	clearBlock = '00112233445566778899aabbccddeeff'
 
 	printColor('## Cipher block %s' % (cipherBlock), BLUE)
-	print largeHex2Bin(cipherBlock), len(largeHex2Bin(cipherBlock))
+	print(largeHex2Bin(cipherBlock), len(largeHex2Bin(cipherBlock)))
 	printColor('## Key block %s' % (key), BLUE)
-	print largeHex2Bin(key), len(largeHex2Bin(key))
+	print(largeHex2Bin(key), len(largeHex2Bin(key)))
 
 	key = largeHex2Bin(key)
 	cipherBlock = largeHex2Bin(cipherBlock)

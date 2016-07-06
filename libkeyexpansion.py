@@ -46,8 +46,8 @@ def wordToByte(w):
 
 def byteToWord(w):
 	result = []
-	for i in xrange(4):
-		for j in xrange(octetSize):
+	for i in range(4):
+		for j in range(octetSize):
 			result.append(w[i][j])
 	return result
 
@@ -85,7 +85,7 @@ def rotWord(w):
 
 def fixIndexEqua(equa, index):
 	result = []
-	for i in xrange(octetSize):
+	for i in range(octetSize):
 		temp = ''
 		elt = 0
 		while elt < len(equa[i]):
@@ -112,14 +112,14 @@ def subWord(w, rcon):
 	equations_rc = generateEquaMonomes(mt_rc)
 
 	cpt = 0
-	for cpt in xrange(4):
+	for cpt in range(4):
 		tmp = []
 		index = getIndex(w[cpt][0].split('+')[0])
 		if cpt==0:
 			subByte = fixIndexEqua(equations_rc, index)
 		else:
 			subByte = fixIndexEqua(equations, index)
-		for i in xrange(octetSize):
+		for i in range(octetSize):
 			tmp.append(subByte[i])
 		result.append(tmp)
 
@@ -129,7 +129,7 @@ def subWord(w, rcon):
 
 def xorWords(w1, w2):
 	result = []
-	for i in xrange(wordSize):
+	for i in range(wordSize):
 		result.append(w1[i] + '+' + w2[i])
 	return result
 
@@ -141,7 +141,7 @@ def generateWord(num):
 		if ((num % 4) == 0):
 			w = generateWord(3)
 			w = rotWord(w)
-			w = subWord(w, rconList[(num/4)-1])
+			w = subWord(w, rconList[int(num/4)-1])
 			w = xorWords(w, generateWord(0))
 		else:
 			w = generateWord(num-1)
@@ -174,8 +174,8 @@ def testKeyExpansion():
 def testWord(w, key):
 	result = ''
 	k = largeHex2Bin(key)
-	print k, key
-	for i in xrange(wordSize):
+	print(k, key)
+	for i in range(wordSize):
 		tmp = []
 		bit = w[i].split('+')
 		for monome in bit:
@@ -184,14 +184,14 @@ def testWord(w, key):
 				tmp.append('1')
 			else:
 				t = ''
-				for j in xrange(1,len(m)):
+				for j in range(1,len(m)):
 					t += k[int(m[j])]
 				tmp.append(t)
 		r = []
 		for item in tmp:
 			r.append(str(reduce(lambda x, y: int(x)&int(y), item)))
 		result += str(reduce(lambda x, y: int(x)^int(y), r))
-	print result, wordBin2hex(result)
+	print(result, wordBin2hex(result))
 
 
 def addRoundKey(numRound, val):
@@ -222,7 +222,7 @@ def addRoundKey(numRound, val):
 		result = generateKn(generateWord(40), generateWord(41), generateWord(42), generateWord(43))
 	binMon = generateBinaryMonomes(result)
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fname+'%s.txt' % intToThreeChar(i))
 		f.write('## addRoundKey%s\n' % numRound)
 		f.write(binMon[i])

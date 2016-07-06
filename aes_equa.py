@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import sys
 from libmain import *
 from libsubbytes import *
 from libshiftrows import *
 from libmixcolumns import *
-from libkeyexpansion import *
 from libkeyexpansion import *
 from libequaenc import *
 from libequadec import *
@@ -14,22 +13,26 @@ from libequadec import *
 
 
 
-def encryptionProcess(step=True):
-	if (step):
+def encryptionProcess(step=False, control=False):
+	if step:
 		generateEncStepsFiles()
-		controlEncStepsFiles()
+		if control:
+			controlEncStepsFiles()
 	else:
 		generateEncFullFiles()
-		controlEncFullFiles()
+		if control:
+			controlEncFullFiles()
 
 
-def decryptionProcess(step=True):
-	if (step):
+def decryptionProcess(step=False, control=False):
+	if step:
 		generateDecStepsFiles()
-		controlDecStepsFiles()
+		if control:
+			controlDecStepsFiles()
 	else:
 		generateDecFullFiles()
-		controlDecFullFiles()
+		if control:
+			controlDecFullFiles()
 
 
 def getNumRound(line):
@@ -63,7 +66,7 @@ def treatLines(allLines, mode):
 def createFullFiles(mode):
 	testAESdirectory()
 	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		fname = (fileNameEnc if mode == 'enc' else fileNameDec)
 		fileName = fname+'%s.txt' % intToThreeChar(i)
 		allLines = readFile(fileName)
@@ -72,37 +75,38 @@ def createFullFiles(mode):
 		for line in result:
 			f.write(line)
 		closeFile(f)
-		print 'bit number', i, ':', len(allLines), 'lines readed,', len(result), 'lines treated'
+		print('bit number', i, ':', len(allLines), 'lines readed,', len(result), 'lines treated')
 	printColor('## Files generated', YELLOW)
 
 
 def someTests():
-w = generateWord(4)
-print w[0]
-print equaToLatex(w[0])
-print len(w)
-r = generateRoundEnc(subBytes(), shiftRows(), mixColumns())
-print r[0]
-print equaToLatex(r[0])
-print len(r)
-equa = invSubBytes()
-print equa[0]
-print len(equa)
-print equaToLatex(equa[0])
-equa = invShiftRows()
-print equa[0]
-print len(equa)
-print equaToLatex(equa[0])
-equa = invMixColumns()
-print equa[0]
-print len(equa)
-print equaToLatex(equa[0])
+	w = generateWord(4)
+	print(w[0])
+	print(equaToLatex(w[0]))
+	print(len(w))
+	r = generateRoundEnc(subBytes(), shiftRows(), mixColumns())
+	print(r[0])
+	print(equaToLatex(r[0]))
+	print(len(r))
+	equa = invSubBytes()
+	print(equa[0])
+	print(len(equa))
+	print(equaToLatex(equa[0]))
+	equa = invShiftRows()
+	print(equa[0])
+	print(len(equa))
+	print(equaToLatex(equa[0]))
+	equa = invMixColumns()
+	print(equa[0])
+	print(len(equa))
+	print(equaToLatex(equa[0]))
 
 
 if __name__ == "__main__":
-	#someTests()
-	#testKeyExpansion()
-	#encryptionProcess()
-	#decryptionProcess()
+	print(sys.version)
+	someTests()
+	#encryptionProcess(step=True, control=True)
+	#decryptionProcess(step=True, control=True)
 	#createFullFiles('enc')
 	#createFullFiles('dec')
+	#testKeyExpansion()

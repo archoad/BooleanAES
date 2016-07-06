@@ -6,18 +6,18 @@ import os
 from libminiaes import *
 
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = xrange(30, 38)
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(30, 38)
 directory = 'mini_AES_files/'
 
 
 def printColor(string, color=RED):
-	print '\033[1;%dm%s\033[0m' % (color, string)
+	print('\033[1;%dm%s\033[0m' % (color, string))
 
 
 def blockToStr(block):
 	result = ''
-	for i in xrange(blockSize):
-		if ((i % nibbleSize) == 0) & (i <> 0): result += ' '
+	for i in range(blockSize):
+		if ((i % nibbleSize) == 0) & (i != 0): result += ' '
 		result += block[i]
 	return result
 
@@ -74,7 +74,7 @@ def createMiniAESFiles():
 		os.mkdir(directory)
 	else:
 		printColor('## Directory %s already exist' % (d), RED)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = createFile('f_%s.txt' % (intToThreeChar(i)))
 		closeFile(f)
 	printColor('## Files generated', GREEN)
@@ -86,7 +86,7 @@ def generateBitsBlock(c):
 	usage: generateGenericBlock('x3') return 000100...00000"""
 	result = ''
 	tmp = int(c.split('_')[1])
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		if i == tmp:
 			result += '1'
 		else:
@@ -100,13 +100,13 @@ def equaToLines(equa):
 	for monomial in tmp:
 		if monomial == '1':
 			result += '1\t'
-			for i in xrange(1,blockSize+1):
+			for i in range(1,blockSize+1):
 				result += '0'
 			result += '\n'
 		else:
 			result += '0\t'
 			tmp = monomial.split('x')
-			for i in xrange(1,blockSize+1):
+			for i in range(1,blockSize+1):
 				if str(i) in tmp:
 					result += '1'
 				else:
@@ -133,7 +133,7 @@ def generateFiles():
 	mtr1 = generateMoebiusTransform(r1)
 	printColor('## Calculating Moebius transform for R2', GREEN)
 	mtr2 = generateMoebiusTransform(r2)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		printColor('## Generating file for bit %s' % (i+1), MAGENTA)
 		f = openFile('f_%s.txt' % (intToThreeChar(i)))
 
@@ -170,7 +170,7 @@ def treatBlock(roundBlock, block):
 		if tmp[0] == '1':
 			result.append(int(tmp[0]))
 		else:
-			for i in xrange(blockSize):
+			for i in range(blockSize):
 				if tmp[1][i] == '1':
 					t.append(int(block[i]))
 			result.append(reduce(lambda x, y: x&y, t))
@@ -179,7 +179,7 @@ def treatBlock(roundBlock, block):
 
 def treatKey(beginMark, endMark, key, clear):
 	result = ''
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		temp = []
 		flag = 0
 		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
@@ -188,7 +188,7 @@ def treatKey(beginMark, endMark, key, clear):
 			if line == beginMark: flag = 1
 			if line == endMark: flag = 0
 			if flag:
-				if line[0] <> '#':
+				if line[0] != '#':
 					temp.append(line)
 		result += treatBlock(temp, key)
 	return(xorTab(clear, result))
@@ -196,7 +196,7 @@ def treatKey(beginMark, endMark, key, clear):
 
 def treatRound(beginMark, endMark, block):
 	result = ''
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		temp = []
 		flag = 0
 		allLines = readFile('f_%s.txt' % (intToThreeChar(i)))
@@ -205,7 +205,7 @@ def treatRound(beginMark, endMark, block):
 			if line == beginMark: flag = 1
 			if line == endMark: flag = 0
 			if flag:
-				if line[0] <> '#':
+				if line[0] != '#':
 					temp.append(line)
 		result += treatBlock(temp, block)
 	return(result)
@@ -219,23 +219,23 @@ def controlCipheringProcess():
 
 	block = treatKey('## addRoundKey1', '## RoundOne', key, clear)
 	printColor('## addRoundKey')
-	print blockToStr(block)
+	print(blockToStr(block))
 
 	block = treatRound('## RoundOne', '## addRoundKey2', block)
 	printColor('## RoundOne')
-	print blockToStr(block)
+	print(blockToStr(block))
 
 	block = treatKey('## addRoundKey2', '## RoundTwo', key, block)
 	printColor('## addRoundKey')
-	print blockToStr(block)
+	print(blockToStr(block))
 
 	block = treatRound('## RoundTwo', '## addRoundKey3', block)
 	printColor('## RoundTwo')
-	print blockToStr(block)
+	print(blockToStr(block))
 
 	block = treatKey('## addRoundKey3', '## end', key, block)
 	printColor('## addRoundKey')
-	print blockToStr(block)
+	print(blockToStr(block))
 
 	printColor('## Cipher block %s' % blockToStr(block), BLUE)
 
@@ -243,11 +243,11 @@ def controlCipheringProcess():
 def tests():
 	(k0, k1, k2) = generateRoundsKeysTruthTable()
 	mtk1 = generateMoebiusTransform(k1)
-	print mtk1, len(mtk1)
+	print(mtk1, len(mtk1))
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		equa = definesMonomeBlock(mtk1[i])
-		print equa
+		print(equa)
 
 
 

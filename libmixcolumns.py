@@ -13,7 +13,7 @@ def generateMultByValTruthTable(val):
 
 def mixColumns():
 	equa = []
-	result = ['' for i in xrange(blockSize)]
+	result = ['' for i in range(blockSize)]
 	tt2 = generateMultByValTruthTable('02')
 	tt3 = generateMultByValTruthTable('03')
 	mt2 = generateMoebiusTransform(tt2)
@@ -26,15 +26,15 @@ def mixColumns():
 	binMon3 = generateBinaryMonomes(equaAES3)
 	bits = generateAllBits()
 
-	for cpt in xrange(4):
-		for i in xrange(octetSize):
+	for cpt in range(4):
+		for i in range(octetSize):
 			val = i + (cpt*32)
 			result[val] = binMon2[val] + binMon3[val+8] + bits[val+16] + bits[val+24]
 			result[val+8] = bits[val] + binMon2[val+8] + binMon3[val+16] + bits[val+24]
 			result[val+16] = bits[val] + bits[val+8] + binMon2[val+16] + binMon3[val+24]
 			result[val+24] = binMon3[val] + bits[val+8] + bits[val+16] + binMon2[val+24]
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp = result[i].split('\n')
 		tmp.pop()
 		eq = ''
@@ -42,7 +42,7 @@ def mixColumns():
 			t = monome.split('\t')
 			if t[0] == '1':
 				eq += '1+'
-			for bit in xrange(blockSize):
+			for bit in range(blockSize):
 				if t[1][bit] == '1':
 					eq += 'x_%s' % (bit)
 			eq += '+'
@@ -52,7 +52,7 @@ def mixColumns():
 
 def invMixColumns():
 	equa = []
-	result = ['' for i in xrange(blockSize)]
+	result = ['' for i in range(blockSize)]
 	tt0b = generateMultByValTruthTable('0b')
 	tt0d = generateMultByValTruthTable('0d')
 	tt09 = generateMultByValTruthTable('09')
@@ -79,15 +79,15 @@ def invMixColumns():
 	binMon0e = generateBinaryMonomes(equaAES0e)
 	bits = generateAllBits()
 
-	for cpt in xrange(4):
-		for i in xrange(octetSize):
+	for cpt in range(4):
+		for i in range(octetSize):
 			val = i + (cpt*32)
 			result[val] = binMon0e[val] + binMon0b[val+8] + binMon0d[val+16] + binMon09[val+24]
 			result[val+8] = binMon09[val] + binMon0e[val+8] + binMon0b[val+16] + binMon0d[val+24]
 			result[val+16] = binMon0d[val] + binMon09[val+8] + binMon0e[val+16] + binMon0b[val+24]
 			result[val+24] = binMon0b[val] + binMon0d[val+8] + binMon09[val+16] + binMon0e[val+24]
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp = result[i].split('\n')
 		tmp.pop()
 		eq = ''
@@ -95,7 +95,7 @@ def invMixColumns():
 			t = monome.split('\t')
 			if t[0] == '1':
 				eq += '1+'
-			for bit in xrange(blockSize):
+			for bit in range(blockSize):
 				if t[1][bit] == '1':
 					eq += 'x_%s' % (bit)
 			eq += '+'

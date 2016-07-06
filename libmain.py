@@ -3,9 +3,10 @@
 import os
 import timeit
 import shutil
+from functools import reduce
 
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = xrange(30, 38)
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(30, 38)
 octetSize = 8 # SBOX takes 8 bits as input
 wordSize = 32
 blockSize = 128 #16 for mini-aes and 128 for aes
@@ -19,7 +20,7 @@ def hex2bin(h):
 	usage: hex2bin('ff') --> 11111111"""
 	tmp = ''
 	h = bin(int(h, 16)).lstrip('0b')
-	for cpt in xrange(octetSize-len(h)):
+	for cpt in range(octetSize-len(h)):
 		tmp += '0'
 	for b in h:
 		tmp += b
@@ -30,7 +31,7 @@ def largeHex2Bin(h):
 	"""Convert a hex represntation in a binary representation
 	usage: largeHex2Bin('00112233') = 00000000000100010010001000110011"""
 	result = ''
-	for i in xrange(0,len(h),2):
+	for i in range(0,len(h),2):
 		result += hex2bin(h[i] + h[i+1])
 	return result
 
@@ -41,8 +42,8 @@ def wordBin2hex(b):
 	tmp = []
 	val = ''
 	result = ''
-	for i in xrange(wordSize):
-		if (i % octetSize == 0) and (i <> 0):
+	for i in range(wordSize):
+		if (i % octetSize == 0) and (i != 0):
 			tmp.append(val)
 			val = ''
 		val += b[i]
@@ -64,10 +65,10 @@ def bin2byte(b):
 	usage: bin2byte('10') --> 00000010"""
 	tmp = ''
 	if len(b) > 8:
-		for cpt in xrange(len(b)-8,len(b)):
+		for cpt in range(len(b)-8,len(b)):
 			tmp += b[cpt]
 	else:
-		for i in xrange(8-len(b)):
+		for i in range(8-len(b)):
 			tmp += '0'
 		tmp = tmp + b
 	return tmp
@@ -78,7 +79,7 @@ def int2bin(i):
 	usage: int2bin(255) --> 11111111"""
 	tmp = ""
 	i = bin(i).lstrip('0b')
-	for cpt in xrange(octetSize-len(i)):
+	for cpt in range(octetSize-len(i)):
 		tmp += '0'
 	tmp = tmp + i
 	return tmp
@@ -103,8 +104,8 @@ def bin2hex(b):
 	tmp = []
 	val = ''
 	result = ''
-	for i in xrange(blockSize):
-		if (i % octetSize == 0) and (i <> 0):
+	for i in range(blockSize):
+		if (i % octetSize == 0) and (i != 0):
 			tmp.append(val)
 			val = ''
 		val += b[i]
@@ -125,7 +126,7 @@ def bin2monome(b):
 	"""Return the monomes corresponding to the binary.
 	usage: bin2monome(00110001) = x_2+x_3+x_7"""
 	result = ''
-	for i in xrange(octetSize):
+	for i in range(octetSize):
 		if b[i] == '1':
 			tmp = 'x_%s' % (i)
 			result += tmp
@@ -137,7 +138,7 @@ def monome2bin(m):
 	usage: monome2bin(x_2+x_3+x_7) = 001100010000...00000000000"""
 	temp = m.split('x_')
 	result = ''
-	for i in xrange(128):
+	for i in range(128):
 		if str(i) in temp:
 			result += '1'
 		else:
@@ -148,7 +149,7 @@ def monome2bin(m):
 def xorTab(t1, t2):
 	"""Takes two tabs t1 and t2 of same lengths and returns t1 XOR t2."""
 	result = ''
-	for i in xrange(len(t1)):
+	for i in range(len(t1)):
 		result += str(int(t1[i]) ^ int(t2[i]))
 	return result
 
@@ -156,7 +157,7 @@ def xorTab(t1, t2):
 def xorList(mylist):
 	result = mylist[0]
 	cpt = 0
-	for i in xrange(len(mylist)):
+	for i in range(len(mylist)):
 		if cpt < len(mylist)-1:
 			result = xorTab(result, mylist[cpt+1])
 		cpt += 1
@@ -168,7 +169,7 @@ def galoisMultiplication(a, b):
 	usage: galoisMultiplication('11110000', '10100111') = 01101011
 	algorithm: http://www.samiam.org/galois.html"""
 	product = '00000000'
-	for i in xrange(octetSize):
+	for i in range(octetSize):
 		if int(b[7], 2) & 1: # low bit of b ist set
 			product = bin2byte(bin(int(product, 2) ^ int(a, 2)).lstrip('0b'))
 		aHighBit = int(a[0], 2) # aHighBit contains the high bit of a
@@ -181,7 +182,7 @@ def galoisMultiplication(a, b):
 
 
 def printColor(string, color=RED):
-	print '\033[1;%dm%s\033[0m' % (color, string)
+	print('\033[1;%dm%s\033[0m' % (color, string))
 
 
 def intToThreeChar(i):
@@ -227,9 +228,9 @@ def closeFile(f):
 
 def generateEquaMonomes(mt):
 	result = []
-	for b in xrange(len(mt)):
+	for b in range(len(mt)):
 		tmp = ''
-		for i in xrange(len(mt[b])):
+		for i in range(len(mt[b])):
 			if mt[b][i] == '1':
 				if i == 0:
 					tmp += '1+' # constant
@@ -248,7 +249,7 @@ def traiteMonomes(equa, cpt):
 		else:
 			t = m.split('x_')
 			for item in t:
-				if item <> '':
+				if item != '':
 					result += 'x_' + str(int(item) + ((cpt-1)*octetSize))
 		result += '+'
 	return result.rstrip('+')
@@ -257,7 +258,7 @@ def traiteMonomes(equa, cpt):
 def generateEquaMonomesAES(equations):
 	result = []
 	cpt = 0
-	for i in xrange(128):
+	for i in range(128):
 		if i%octetSize == 0:
 			cpt += 1
 		result.append(traiteMonomes(equations[i%octetSize], cpt))
@@ -270,8 +271,8 @@ def moebiusTransform(tab):
 	if len(tab) == 1:
 		return tab
 	else:
-		t1 = tab[0 : len(tab)/2]
-		t2 = tab[len(tab)/2 : len(tab)]
+		t1 = tab[0 : int(len(tab)/2)]
+		t2 = tab[int(len(tab)/2) : len(tab)]
 		t2 = xorTab(t1, t2)
 		t1 = moebiusTransform(t1)
 		t2 = moebiusTransform(t2)
@@ -284,7 +285,7 @@ def generateMoebiusTransform(tt):
 	transform for a boolean function of tab. The result is a tab of octetSize
 	cases each one containing 2**octetSize bits. Each case describe a bit of the function"""
 	result = []
-	for i in xrange(octetSize):
+	for i in range(octetSize):
 		tmp = ''
 		for block in tt:
 			tmp += block[i]
@@ -294,7 +295,7 @@ def generateMoebiusTransform(tt):
 
 def generateBinaryMonomes(equations):
 	result = []
-	for i in xrange(len(equations)):
+	for i in range(len(equations)):
 		temp = ''
 		for monome in equations[i].split('+'):
 			if monome == '1':
@@ -308,7 +309,7 @@ def generateBinaryMonomes(equations):
 def bitToLatex(bit):
 	bit = bit.replace('+', ' \oplus ')
 	bit = '$' + bit + '$'
-	print bit
+	print(bit)
 
 
 def createAESFiles(val):
@@ -319,7 +320,7 @@ def createAESFiles(val):
 	else:
 		printColor('## Directory %s already exist' % (d), RED)
 	fname = (fileNameEnc if val == 'enc' else fileNameDec)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = createFile(fname+'%s.txt' % (intToThreeChar(i)))
 		closeFile(f)
 	return 1
@@ -334,7 +335,7 @@ def testAESdirectory():
 
 def writeEndFlag(val):
 	fname = (fileNameEnc if val == 'enc' else fileNameDec)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fname+'%s.txt' % intToThreeChar(i))
 		f.write('## end\n')
 		closeFile(f)
@@ -344,7 +345,7 @@ def generateGenericWord(s, c):
 	"""Generate a tab containing wordSize variables
 	usage: generateGenericByte(0, 'x') return ['x_0', 'x_1', 'x_2', 'x_3', 'x_4', ..., 'x_30', 'x_31']"""
 	result = []
-	for i in xrange(s,wordSize+s):
+	for i in range(s,wordSize+s):
 		result.append('%s_%s' % (c, i))
 	return result
 
@@ -353,7 +354,7 @@ def generateGenericBlock(c):
 	"""Generate a tab containing blockSize variables
 	usage: generateGenericBlock('x') return ['x_0', 'x_1', 'x_2', 'x_3', 'x_4', ..., 'x_126', 'x_127']"""
 	result = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		result.append('%s_%s' % (c, i))
 	return result
 
@@ -363,7 +364,7 @@ def generateBitsBlock(c):
 	usage: generateGenericBlock('x_3') return 00010000000...00000"""
 	result = ''
 	tmp = int(c.split('_')[1])
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		if i == tmp:
 			result += '1'
 		else:
@@ -373,12 +374,12 @@ def generateBitsBlock(c):
 
 def generateAllBits():
 	"""Generate a list containing 128 input corresponding to the
-		conversion of integer to binary for i in xrange(blockSize)"""
+		conversion of integer to binary for i in range(blockSize)"""
 	result = []
 	tmp = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp.append('0')
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		t = ''
 		tmp[i] = '1'
 		result.append('0\t' + t.join(tmp) + '\n')
@@ -395,22 +396,22 @@ def extractBlock(file, startBlock, endBlock):
 		if line == startBlock: flag = 1
 		if line == endBlock: flag = 0
 		if flag:
-			if line[0] <> '#':
+			if line[0] != '#':
 				tmp.append(line)
 	return tmp
 
 
 def displayTruthTable(tt):
-	for i in xrange(len(tt)):
-		print i, '\t', int(tt[i], 2), '\t', int2bin(i), '\t', tt[i]
+	for i in range(len(tt)):
+		print(i, '\t', int(tt[i], 2), '\t', int2bin(i), '\t', tt[i])
 
 
 def displayEqua(tt):
 	mt = generateMoebiusTransform(tt)
 	equa = generateEquaMonomes(mt)
-	for i in xrange(octetSize):
+	for i in range(octetSize):
 		equa2sagemath(equa[i])
-		print i, '\t', equa2sagemath(equa[i])
+		print(i, '\t', equa2sagemath(equa[i]))
 
 
 def treatBlock(value, block):
@@ -422,7 +423,7 @@ def treatBlock(value, block):
 		if tmp[0] == '1':
 			result.append(int(tmp[0]))
 		else:
-			for i in xrange(blockSize):
+			for i in range(blockSize):
 				if tmp[1][i] == '1':
 					t.append(int(block[i]))
 			result.append(reduce(lambda x, y: x&y, t))
@@ -432,7 +433,7 @@ def treatBlock(value, block):
 def controlBlock(mode, start, end, block, key=None):
 	flag = 0
 	result = ''
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		fname = (fileNameEnc if mode == 'enc' else fileNameDec)
 		file = fname+'%s.txt' % intToThreeChar(i)
 		temp = extractBlock(file, start, end)
@@ -446,8 +447,8 @@ def controlBlock(mode, start, end, block, key=None):
 	else:
 		block = xorTab(result, block)
 	printColor(start)
-	print block, len(block)
-	print bin2hex(block), len(bin2hex(block))
+	print(block, len(block))
+	print(bin2hex(block), len(bin2hex(block)))
 	return block
 
 def equaToLatex(equa):
@@ -459,7 +460,7 @@ def equaToLatex(equa):
 		else:
 			ix = monomial.split('x')
 			for val in ix:
-				if val <> '':
+				if val != '':
 					result += 'x_{%s}' % (val.lstrip('_'))
 			result += '+'
 	result = result.rstrip('+') + '$'

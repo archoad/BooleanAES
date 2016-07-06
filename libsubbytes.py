@@ -44,7 +44,7 @@ invsbox = [['52', '09', '6a', 'd5', '30', '36', 'a5', '38', 'bf', '40', 'a3', '9
 def generateSboxTruthTable():
 	"""Returns the truth table of SBOX."""
 	result = []
-	for i in xrange(2**octetSize):
+	for i in range(2**octetSize):
 		tmp = int2hex(i)
 		result.append(hex2bin(sbox[int(tmp[0], 16)][int(tmp[1], 16)]))
 	return result
@@ -61,7 +61,7 @@ def subBytes():
 def generateInvSboxTruthTable():
 	"""Returns the truth table of invSBOX."""
 	result = []
-	for i in xrange(2**octetSize):
+	for i in range(2**octetSize):
 		tmp = int2hex(i)
 		result.append(hex2bin(invsbox[int(tmp[0], 16)][int(tmp[1], 16)]))
 	return result
@@ -73,5 +73,3 @@ def invSubBytes():
 	equations = generateEquaMonomes(mt)
 	equa = generateEquaMonomesAES(equations)
 	return equa
-
-

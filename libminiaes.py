@@ -53,7 +53,7 @@ def intToNibble(i):
 	usage: intToNibble(15) --> 1111"""
 	tmp = ''
 	i = bin(i).lstrip('0b')
-	for cpt in xrange(nibbleSize-len(i)):
+	for cpt in range(nibbleSize-len(i)):
 		tmp += '0'
 	for b in i:
 		tmp += b
@@ -71,7 +71,7 @@ def intToBinOctect(i):
 	usage: intToBinOctect(134) --> 10000110"""
 	tmp = ""
 	i = bin(i).lstrip('0b')
-	for cpt in xrange(8-len(i)):
+	for cpt in range(8-len(i)):
 		tmp += '0'
 	tmp = tmp + i
 	return tmp
@@ -82,7 +82,7 @@ def intToBinBlock(i):
 	usage: intToBinBlock(65523) --> 1111111111110011"""
 	tmp = ""
 	i = bin(i).lstrip('0b')
-	for cpt in xrange(16-len(i)):
+	for cpt in range(16-len(i)):
 		tmp += '0'
 	tmp = tmp + i
 	return tmp
@@ -92,7 +92,7 @@ def nibbleToInt(nibble):
 	"""Returns a string of the integer representation for a nibbleSize bits.
 	usage: nibbleToInt(1111) --> 15"""
 	result = 0
-	for i in xrange(len(nibble)):
+	for i in range(len(nibble)):
 		result += int(nibble[i]) * 2**(len(nibble)-(i+1))
 	return result
 
@@ -108,8 +108,8 @@ def blockToNibbles(block):
 	usage: blockToNibbles([1001110001100011) --> 1001 1100 0110 0011 """
 	result = ''
 	tmp = ''
-	for cpt in xrange(len(block)):
-		if not(cpt % nibbleSize) and (cpt <> 0):
+	for cpt in range(len(block)):
+		if not(cpt % nibbleSize) and (cpt != 0):
 			result += tmp +' '
 			tmp = ''
 		tmp += block[cpt]
@@ -124,7 +124,7 @@ def mapSbox(nibble):
 def xorTab(t1, t2):
 	"""Takes two tabs t1 and t2 of same lengths and returns t1 XOR t2."""
 	result = ''
-	for i in xrange(len(t1)):
+	for i in range(len(t1)):
 		result += str(int(t1[i]) ^ int(t2[i]))
 	return result
 
@@ -132,7 +132,7 @@ def xorTab(t1, t2):
 def xorList(mylist):
 	result = mylist[0]
 	cpt = 0
-	for i in xrange(len(mylist)):
+	for i in range(len(mylist)):
 		if cpt < len(mylist)-1:
 			result = xorTab(result, mylist[cpt+1])
 		cpt += 1
@@ -149,7 +149,7 @@ def equaToLatex(equa):
 		else:
 			ix = monomial.split('x')
 			for val in ix:
-				if val <> '':
+				if val != '':
 					result += 'x_{%s}' % (val)
 			result += '+'
 	result = result.rstrip('+') + '$'
@@ -163,8 +163,8 @@ def moebiusTransform(tab):
 	if len(tab) == 1:
 		return tab
 	else:
-		t1 = tab[0 : len(tab)/2]
-		t2 = tab[len(tab)/2 : len(tab)]
+		t1 = tab[0 : int(len(tab)/2)]
+		t2 = tab[int(len(tab)/2) : len(tab)]
 		t2 = xorTab(t1, t2)
 		t1 = moebiusTransform(t1)
 		t2 = moebiusTransform(t2)
@@ -176,7 +176,7 @@ def generateMoebiusTransform(tab):
 	"""Creates blockSize strings, each containing the result of Moebius Transform for a boolean function of tab.
 	The result is a tab of 16 cases each one containing 65536 bits. Each case describe a bit of the function"""
 	result = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp = ''
 		for block in tab:
 			tmp += block[i]
@@ -189,21 +189,21 @@ def definesMonomeBlock(mt):
 	Scale is for block of 16 bits (a mini-aes block)"""
 	tab = []
 	equa = ''
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		if mt[i] == '1':
 			tmp = intToBinBlock(i)
 			if i == 0:
 				tab.append('1') # constant
 			else:
 				monome = ''
-				for bit in xrange(blockSize):
+				for bit in range(blockSize):
 					if tmp[bit] == '1':
 						monome += 'x' + str(bit+1)
 				tab.append(monome)
 		else:
 			tab.append('\t')
-	for i in xrange(2**blockSize):
-		if tab[i] <> '\t':
+	for i in range(2**blockSize):
+		if tab[i] != '\t':
 			equa += tab[i] + '+'
 	return(equa.rstrip('+'))
 
@@ -219,7 +219,7 @@ def gf24Multiply(n1, n2):
 def generateNibbleSubTruthTable():
 	"""Returns the truth table of the mini aes NibbleSub function."""
 	result = []
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = map(mapSbox, blockToNibbles(intToBinBlock(i)).split(' '))
 		result.append(''.join(tmp))
 	return result
@@ -228,7 +228,7 @@ def generateNibbleSubTruthTable():
 def generateShiftRowTruthTable():
 	"""Returns the truth table of the mini aes ShiftRow function."""
 	result = []
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = []
 		tabBlock = blockToNibbles(intToBinBlock(i)).split(' ')
 		tmp.append(tabBlock[0])
@@ -246,7 +246,7 @@ def generateMixColumnsTruthTable():
 		d2 =(0011 x c2) + (0010 x c3)
 		d3 =(0010 x c2) + (0011 x c3)"""
 	result = []
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = blockToNibbles(intToBinBlock(i)).split(' ')
 		c0 = tmp[0]
 		c1 = tmp[1]
@@ -265,7 +265,7 @@ def generateRoundsKeysTruthTable():
 	k0 = []
 	k1 = []
 	k2 = []
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = blockToNibbles(intToBinBlock(i)).split(' ')
 		w0 = tmp[0]
 		w1 = tmp[1]
@@ -292,7 +292,7 @@ def generateRoundOneTruthTable():
 	ns_tt = generateNibbleSubTruthTable()
 	sr_tt = generateShiftRowTruthTable()
 	mc_tt = generateMixColumnsTruthTable()
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = mc_tt[ int(sr_tt[ int(ns_tt[i], 2) ], 2) ]
 		result.append(tmp)
 	return result
@@ -304,9 +304,7 @@ def generateRoundTwoTruthTable():
 	result = []
 	ns_tt = generateNibbleSubTruthTable()
 	sr_tt = generateShiftRowTruthTable()
-	for i in xrange(2**blockSize):
+	for i in range(2**blockSize):
 		tmp = sr_tt[ int(ns_tt[i], 2) ]
 		result.append(tmp)
 	return result
-
-

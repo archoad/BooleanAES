@@ -10,25 +10,25 @@ from libkeyexpansion import *
 def generateRoundEnc(equaSB, equaSR, equaMC):
 	resultSR = []
 	resultMC = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp = ''
 		for monomial in equaMC[i].split('+'):
 			tmp += resultSR[int(monomial.split('_')[1])]
 			tmp += '+'
 		resultMC.append(tmp.rstrip('+'))
 	binMon = generateBinaryMonomes(resultMC)
-	return resultMC
+	return binMon
 
 
 def writeSubBytes(numRound):
-	printColor('## SubBytes %s' % numRound, GREEN)
+	printColor('## SubBytes%s' % numRound, GREEN)
 	equa = subBytes()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
 		f.write('## subBytes%s\n' % numRound)
 		f.write(binMon[i])
@@ -37,10 +37,10 @@ def writeSubBytes(numRound):
 
 
 def writeShiftRows(numRound):
-	printColor('## ShiftRows %s' % numRound, GREEN)
+	printColor('## ShiftRows%s' % numRound, GREEN)
 	equa = shiftRows()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
 		f.write('## shiftRows%s\n' % numRound)
 		f.write(binMon[i])
@@ -49,10 +49,10 @@ def writeShiftRows(numRound):
 
 
 def writeMixColumns(numRound):
-	printColor('## MixColumns %s' % numRound, GREEN)
+	printColor('## MixColumns%s' % numRound, GREEN)
 	equa = mixColumns()
 	binMon = generateBinaryMonomes(equa)
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
 		f.write('## mixColumns%s\n' % numRound)
 		f.write(binMon[i])
@@ -64,11 +64,11 @@ def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
 	resultMC = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		tmp = ''
 		for monomial in equaMC[i].split('+'):
 			tmp += resultSR[int(monomial.split('_')[1])]
@@ -76,7 +76,7 @@ def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
 		resultMC.append(tmp.rstrip('+'))
 	binMon = generateBinaryMonomes(resultMC)
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
 		f.write('## Round%s\n' % numRound)
 		f.write(binMon[i])
@@ -87,12 +87,12 @@ def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
 def writeFinalRoundEnc(numRound, equaSB, equaSR):
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
 	binMon = generateBinaryMonomes(resultSR)
 
-	for i in xrange(blockSize):
+	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
 		f.write('## Round%s\n' % numRound)
 		f.write(binMon[i])
@@ -115,7 +115,7 @@ def generateEncStepsFiles():
 	writeShiftRows(2)
 	writeMixColumns(2)
 	writeEndFlag('enc')
-#	print currentStep, len(currentStep)
+#	print(currentStep, len(currentStep))
 #	bitToLatex(currentStep[127])
 	printColor('## Files generated', RED)
 
@@ -126,9 +126,9 @@ def controlEncStepsFiles():
 	fipsMixColumns2 = '4c9c1e66f771f0762c3f868e534df256'
 
 	printColor('## Clear block %s' % (clearBlock), BLUE)
-	print largeHex2Bin(clearBlock), len(largeHex2Bin(clearBlock))
+	print(largeHex2Bin(clearBlock), len(largeHex2Bin(clearBlock)))
 	printColor('## Key block %s' % (key), BLUE)
-	print largeHex2Bin(key), len(largeHex2Bin(key))
+	print(largeHex2Bin(key), len(largeHex2Bin(key)))
 
 	key = largeHex2Bin(key)
 	clearBlock = largeHex2Bin(clearBlock)
@@ -173,7 +173,7 @@ def generateEncFullFiles():
 	writeFinalRoundEnc(9, subBytes(), shiftRows())
 	addRoundKey(10, 'enc')
 	writeEndFlag('enc')
-#	print currentStep, len(currentStep)
+#	print(currentStep, len(currentStep))
 #	bitToLatex(currentStep[127])
 	printColor('## Files generated', YELLOW)
 
@@ -184,9 +184,9 @@ def controlEncFullFiles():
 	cipherBlock = '69c4e0d86a7b0430d8cdb78070b4c55a'
 
 	printColor('## Clear block %s' % (clearBlock), BLUE)
-	print largeHex2Bin(clearBlock), len(largeHex2Bin(clearBlock))
+	print(largeHex2Bin(clearBlock), len(largeHex2Bin(clearBlock)))
 	printColor('## Key block %s' % (key), BLUE)
-	print largeHex2Bin(key), len(largeHex2Bin(key))
+	print(largeHex2Bin(key), len(largeHex2Bin(key)))
 
 	key = largeHex2Bin(key)
 	clearBlock = largeHex2Bin(clearBlock)
