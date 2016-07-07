@@ -43,6 +43,14 @@ def writeInvMixColumns(numRound):
 	return equa
 
 
+def generateRoundDecEqua(equaSB, equaSR):
+	resultSR = []
+	for i in range(blockSize):
+		equaSR[i] = equaSR[i].split('_')
+		resultSR.append(equaSB[int(equaSR[i][1])])
+	return resultSR
+
+
 def writeRoundDec(numRound, equaSB, equaSR):
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []

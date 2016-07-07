@@ -8,8 +8,6 @@ import matplotlib.pyplot as mpl
 import numpy as np
 
 
-
-
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(30, 38)
 
 
@@ -25,8 +23,6 @@ rgb = [ # source http://colors.findthedata.com/saved_search/Pastel-Colors
 ]
 
 rgbDark = ([[item[0]-0.07, item[1]-0.07, item[2]-0.07] for item in rgb])
-
-
 
 
 def printColor(string, color=RED):
@@ -81,18 +77,6 @@ def generateMoebiusTransform(tt, n):
 	return result
 
 
-def generateAleaBooleanFunction(n):
-	"""Generate the Truth Table of a Boolean Function
-	f(x): F_2^n to F_2^n -- Value of f(x) are random"""
-	printColor("### Random Boolean functions generation", MAGENTA)
-	result = []
-	random.seed()
-	for i in range(2**n):
-		val = random.randint(0, (2**n)-1)
-		result.append(int2nsizeBin(val, n))
-	return result
-
-
 def bin2NsizeMonome(b, n):
 	"""Return the monomes corresponding to the binary.
 	usage: bin2monome(00110001, 8) = x_2+x_3+x_7"""
@@ -120,7 +104,7 @@ def generateEquaMonomes(mt, n):
 
 
 def monomesNumber(equa, n):
-	printColor("### Calculation of monomes number", MAGENTA)
+	printColor("### Calculation of monomes number by degree", MAGENTA)
 	tab = []
 	for eq in range(len(equa)):
 		result = [0 for i in range(n+1)]
@@ -205,6 +189,9 @@ def monomesGraph(tab, n, display=False):
 	ax.set_zticks(zscale)
 	ax.set_zticklabels(zscale, rotation=0, ha='center', va='center', size=8)
 
+	for item in ([ax.xaxis.label, ax.yaxis.label, ax.zaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()) + ax.get_zticklabels():
+		item.set_fontsize(8)
+
 	ax.legend(loc='lower left', prop={'size':8})
 	ax.grid(True)
 	for degree in [10, 230, 300, 350]:
@@ -232,10 +219,23 @@ def monomesDistribution(equa, n):
 	return numMonom
 
 
+def generateAleaBooleanFunction(n):
+	"""Generate the Truth Table of a Boolean Function
+	f(x): F_2^n to F_2^n -- Value of f(x) are random"""
+	printColor("### Random Boolean functions generation", MAGENTA)
+	result = []
+	random.seed()
+	for i in range(2**n):
+		val = random.randint(0, (2**n)-1)
+		result.append(int2nsizeBin(val, n))
+	return result
+
+
+
 
 
 if __name__ == "__main__":
-	n = 16
+	n = 8
 	printColor("### Number of variables: %d" % n, MAGENTA)
 	tt = generateAleaBooleanFunction(n)
 	mt = generateMoebiusTransform(tt, n)

@@ -185,6 +185,7 @@ def monomesGraph(tab, mode, display=False):
 	yscale = [i for i in range(0, blockSize, 15)] # bit number
 	zscale = [i for i in range(0, max, int(max/10))] # number of monome
 
+
 	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
 	ax = fig.add_subplot(111, projection='3d')
 
@@ -215,9 +216,7 @@ def monomesGraph(tab, mode, display=False):
 		mpl.savefig('graph_'+str(degree)+'_'+mode+'.png', dpi=160, bbox_inches=extent, pad_inches=0)
 	if display:
 		mpl.show()
-	#ax.view_init(15, -120)
-	#extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-	#mpl.savefig('graph'+mode+'.png', dpi=100, bbox_inches=extent, pad_inches=0)
+
 
 
 def displayLatexTable(val, start, end):
@@ -300,6 +299,81 @@ def countAllMonomes(allLines):
 	return countMonomes(tmp)
 
 
+def monomesDistribution(equa, n):
+	printColor("### Calculation of monomes disribution (grouped by 2)", MAGENTA)
+	numMonom = [[0 for i in range(n)] for i in range(n)]
+	for num in range(n):
+		tmp = equa[num].split('+')
+		for mon in tmp:
+			monom = mon.split('x_')
+			del monom[0]
+			l = len(monom)
+			if l >1:
+				for r in range(0, l-1, 1):
+					numMonom[int(monom[r])][int(monom[r+1])] += 1
+	for item in numMonom:
+		print(item)
+	return numMonom
+
+
+def someTests(size):
+	displayTabMeanVariance(size)
+	print(computeMean(size))
+	print(computeVariance(size))
+
+
+def generateGraphCode():
+	graphviz = GraphvizOutput(output_file='graph_code.png')
+	with PyCallGraph(output=graphviz, config=Config(groups=False)):
+		subBytes()
+		#invSubBytes()
+		#shiftRows()
+		#invShiftRows()
+		#mixColumns()
+		#invMixColumns()
+		#generateWord(4)
+		#generateWord(5)
+		#generateWord(6)
+		#generateWord(7)
+		#generateEncFullFiles()
+
+
+def roundFunctionsTest():
+	testAESdirectory()
+	generateEncStepsFiles()
+	degree = displayTableAES('enc', '## subBytes0', '## shiftRows0') # subbytes function
+	mean = [computeMean(8)[i] for i in range(octetSize+1)]
+	chi2Test(degree, mean)
+	computeStatDistance(degree, mean)
+	generateChi2Table(127, 128)
+	monomesGraph(degree, 'enc', display=False)
+
+
+def roundTest(mode):
+	testAESdirectory()
+	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
+	fname = (fileNameEnc if mode == 'enc' else fileNameDec)
+	start = ('## Round0' if mode == 'enc' else '## Round9')
+	end = ('## addRoundKey1' if mode == 'enc' else '## addRoundKey9')
+	degree = displayTableAES(mode, start, end) # round
+	mean = [computeMean(8)[i] for i in range(octetSize+1)]
+	chi2Test(degree, mean)
+	computeStatDistance(degree, mean)
+	generateChi2Table(127, 128)
+	monomesGraph(degree, mode, display=False)
+
+
+def roundKeyTest():
+	testAESdirectory()
+	generateEncFullFiles()
+	degree = displayTableAES('enc', '## addRoundKey2', '## Round2') # round key
+	mean = [computeMean(8)[i] for i in range(octetSize+1)]
+	chi2Test(degree, mean)
+	computeStatDistance(degree, mean)
+	generateChi2Table(127, 128)
+	monomesGraph(degree, 'enc', display=True)
+
+
 def fullEquaCombinatoryAnalysis():
 	testAESdirectory()
 	generateEncFullFiles()
@@ -320,90 +394,20 @@ def fullEquaCombinatoryAnalysis():
 		nbMonomEnc.append(numMonomE)
 		nbMonomDec.append(numMonomD)
 		print("bit number: %d" % (bit), numMonomE, resultEnc[bit], numMonomD, resultDec[bit])
+	print('\r')
 	distributionMonomeGraph(nbMonomEnc, nbMonomDec, display=False)
-	monomesGraph(resultEnc, 'enc', display=False)
-	monomesGraph(resultDec, 'dec', display=False)
 
 
-def generateGraphCode():
-	graphviz = GraphvizOutput(output_file='graph_code.png')
-	with PyCallGraph(output=graphviz, config=Config(groups=False)):
-		subBytes()
-		#invSubBytes()
-		#shiftRows()
-		#invShiftRows()
-		#mixColumns()
-		#invMixColumns()
-		#generateWord(4)
-		#generateWord(5)
-		#generateWord(6)
-		#generateWord(7)
-		#generateEncFullFiles()
-
-
-def someTests(size):
-	displayTabMeanVariance(size)
-	print(computeMean(size))
-	print(computeVariance(size))
-
-
-def roundFunctionsTest():
-	mode = 'enc'
-	testAESdirectory()
-	(generateEncStepsFiles() if mode == 'enc' else generateDecStepsFiles())
-	#degree = displayTableAES(mode, '## subBytes0', '## shiftRows0') # subbytes function
-	#degree = displayTableAES(mode, '## shiftRows0', '## mixColumns0') # shiftrows function
-	degree = displayTableAES(mode, '## mixColumns0', '## addRoundKey1') # mixcolumns function
-	mean = [computeMean(8)[i] for i in range(octetSize+1)]
-	chi2Test(degree, mean)
-	computeStatDistance(degree, mean)
-	generateChi2Table(127, 128)
-	#monomesGraph(degree, mode, display=False)
-
-
-def cipherRoundTest():
-	mode = 'enc'
-	testAESdirectory()
-	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-	degree = displayTableAES(mode, '## Round0', '## addRoundKey1') # cipher round
-	mean = [computeMean(8)[i] for i in range(octetSize+1)]
-	chi2Test(degree, mean)
-	computeStatDistance(degree, mean)
-	generateChi2Table(127, 128)
-	monomesGraph(degree, mode, display=False)
-
-
-def decipherRoundTest():
-	mode = 'dec'
-	testAESdirectory()
-	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-	degree = displayTableAES(mode, '## Round0', '## addRoundKey0') # decipher round
-	mean = [computeMean(8)[i] for i in range(octetSize+1)]
-	chi2Test(degree, mean)
-	computeStatDistance(degree, mean)
-	generateChi2Table(127, 128)
-	#monomesGraph(degree, mode, display=False)
-
-
-def roundKeyTest():
-	mode = 'enc'
-	testAESdirectory()
-	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-	degree = displayTableAES(mode, '## addRoundKey2', '## Round2') # round key
-	mean = [computeMean(8)[i] for i in range(octetSize+1)]
-	chi2Test(degree, mean)
-	computeStatDistance(degree, mean)
-	generateChi2Table(127, 128)
-	monomesGraph(degree, mode, display=True)
-
-
-def cipherOneBitAnalysis():
-	testAESdirectory()
-	generateEncFullFiles()
+def oneBitDistribution(mode):
+	"""Compute the use of each bit in the Boolean equations
+	This function returns a 128 cases tab which details the number of time
+	the bits b1...b128 appears in the equation"""
 	numMonom = [0 for i in range(blockSize)]
-	fname = fileNameEnc
-	start = '## Round0'
-	end = '## addRoundKey1'
+	testAESdirectory()
+	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
+	fname = (fileNameEnc if mode == 'enc' else fileNameDec)
+	start = ('## Round0' if mode == 'enc' else '## Round9')
+	end = ('## addRoundKey1' if mode == 'enc' else '## addRoundKey9')
 	for i in range(blockSize):
 		f = fname + '%s.txt' % intToThreeChar(i)
 		tab = extractBlock(f, start, end)
@@ -413,74 +417,18 @@ def cipherOneBitAnalysis():
 				if tmp[j] == '1':
 					numMonom[j] += 1
 	print(numMonom)
-	distributionBitsGraph(numMonom, 'enc', display=False)
+	distributionBitsGraph(numMonom, mode, display=False)
 
 
-def decipherOneBitAnalysis():
-	testAESdirectory()
-	generateDecFullFiles()
-	numMonom = [0 for i in range(blockSize)]
-	fname = fileNameDec
-	start = '## Round9'
-	end = '## addRoundKey9'
-	for i in range(blockSize):
-		f = fname + '%s.txt' % intToThreeChar(i)
-		tab = extractBlock(f, start, end)
-		for mon in tab:
-			tmp = mon.split('\t')[1]
-			for j in range(blockSize):
-				if tmp[j] == '1':
-					numMonom[j] += 1
-	start = '## invMixColumns9'
-	end = '## Round8'
-	for i in range(blockSize):
-		f = fname + '%s.txt' % intToThreeChar(i)
-		tab = extractBlock(f, start, end)
-		for mon in tab:
-			tmp = mon.split('\t')
-			for j in range(blockSize):
-				if tmp[1][j] == '1':
-					numMonom[j] += 1
-	print(numMonom)
-	distributionBitsGraph(numMonom, 'dec', display=False)
-
-
-def groupBitsByTwo(fname, start, end):
-	numMonom = [[0 for i in range(blockSize)] for i in range(blockSize)]
-	for i in range(blockSize):
-		f = fname + '%s.txt' % intToThreeChar(i)
-		tab = extractBlock(f, start, end)
-		for mon in tab:
-			tmp = mon.split('\t')[1]
-			for l in range(0, blockSize-1, 1):
-				current = tmp[l:l+2]
-				if current == '11':
-					numMonom[l][l+1] += 1
-	return numMonom
-
-
-def cipherTwoBitAnalysis():
-	testAESdirectory()
-	generateEncFullFiles()
-	fname = fileNameEnc
-	start = '## Round0'
-	end = '## addRoundKey1'
-	numMonom = groupBitsByTwo(fname, start, end)
-	for x in range(blockSize):
-		print(numMonom[x])
-	distribution2BitsGraph(numMonom, 'enc', display=False)
-
-
-def decipherTwoBitAnalysis():
-	testAESdirectory()
-	generateDecFullFiles()
-	fname = fileNameDec
-	start = '## Round9'
-	end = '## addRoundKey9'
-	numMonom = groupBitsByTwo(fname, start, end)
-	for x in range(blockSize):
-		print(numMonom[x])
-	distribution2BitsGraph(numMonom, 'dec', display=False)
+def twoBitDistribution(mode):
+	if (mode == 'enc'):
+		equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
+	if (mode == 'dec'):
+		equa = generateRoundDecEqua(invSubBytes(), invShiftRows())
+	if (mode == 'key'):
+		equa = generateKn(generateWord(4), generateWord(5), generateWord(6), generateWord(7))
+	distrib = monomesDistribution(equa, 128)
+	distribution2BitsGraph(distrib, mode, display=False)
 
 
 
@@ -490,14 +438,11 @@ if __name__ == "__main__":
 	#someTests(octetSize)
 	#generateGraphCode()
 	#roundFunctionsTest()
-	#cipherRoundTest()
-	#decipherRoundTest()
+	#roundTest('enc')
 	#roundKeyTest()
 	#fullEquaCombinatoryAnalysis()
-	#cipherOneBitAnalysis()
-	#decipherOneBitAnalysis()
-	#cipherTwoBitAnalysis()
-	decipherTwoBitAnalysis()
+	#oneBitDistribution('enc')
+	#twoBitDistribution('key')
 
 
 

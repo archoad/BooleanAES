@@ -7,6 +7,22 @@ from libmixcolumns import *
 from libkeyexpansion import *
 
 
+def generateRoundEncEqua(equaSB, equaSR, equaMC):
+	resultSR = []
+	resultMC = []
+	for i in range(blockSize):
+		equaSR[i] = equaSR[i].split('_')
+		resultSR.append(equaSB[int(equaSR[i][1])])
+
+	for i in range(blockSize):
+		tmp = ''
+		for monomial in equaMC[i].split('+'):
+			tmp += resultSR[int(monomial.split('_')[1])]
+			tmp += '+'
+		resultMC.append(tmp.rstrip('+'))
+	return resultMC
+
+
 def generateRoundEnc(equaSB, equaSR, equaMC):
 	resultSR = []
 	resultMC = []
