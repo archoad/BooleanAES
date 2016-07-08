@@ -442,7 +442,7 @@ if __name__ == "__main__":
 	#roundKeyTest()
 	#fullEquaCombinatoryAnalysis()
 	#oneBitDistribution('enc')
-	#twoBitDistribution('key')
+	twoBitDistribution('key')
 
 
 

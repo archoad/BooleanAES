@@ -235,7 +235,7 @@ def generateAleaBooleanFunction(n):
 
 
 if __name__ == "__main__":
-	n = 8
+	n = 16
 	printColor("### Number of variables: %d" % n, MAGENTA)
 	tt = generateAleaBooleanFunction(n)
 	mt = generateMoebiusTransform(tt, n)

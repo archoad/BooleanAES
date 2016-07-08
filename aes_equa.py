@@ -35,30 +35,18 @@ def decryptionProcess(step=False, control=False):
 			controlDecFullFiles()
 
 
-def getNumRound(line):
-	line = line[3:len(line)]
-	if line.startswith('add'):
-		n = line[11:len(line)]
-	if line.startswith('Round'):
-		n = line[5:len(line)]
-	if line.startswith('invM'):
-		n = line[13:len(line)]
-	if line.startswith('end'):
-		n = 100
-	return int(n)
-
-
 def treatLines(allLines, mode):
 	result = []
+	decalage = 0
 	emptyLine = '0 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
 	for line in allLines:
 		line = line.rstrip('\n')
 		if line.startswith('##'):
-			numRound = getNumRound(line)
 			result.append(line + '\n')
+			decalage += 1
 		else:
 			line = line[:1] + ' ' + line[2:]
-			line = (numRound * (emptyLine + ' ')) + line + ((10 - numRound) * (' ' + emptyLine))
+			line = ((decalage - 1) * (emptyLine + ' ')) + line + ((21 - decalage) * (' ' + emptyLine))
 			result.append(line + '\n')
 	return result
 
@@ -75,7 +63,7 @@ def createFullFiles(mode):
 		for line in result:
 			f.write(line)
 		closeFile(f)
-		print('bit number', i, ':', len(allLines), 'lines readed,', len(result), 'lines treated')
+		print('bit number', i, ':', len(allLines), 'read lines,', len(result), 'treated lines')
 	printColor('## Files generated', YELLOW)
 
 
@@ -84,22 +72,21 @@ def someTests():
 	print(w[0])
 	print(equaToLatex(w[0]))
 	print(len(w))
-	r = generateRoundEnc(subBytes(), shiftRows(), mixColumns())
-	print(r[0])
-	print(equaToLatex(r[0]))
-	print(len(r))
+
 	equa = invSubBytes()
 	print(equa[0])
-	print(len(equa))
 	print(equaToLatex(equa[0]))
+	print(len(equa))
+
 	equa = invShiftRows()
 	print(equa[0])
-	print(len(equa))
 	print(equaToLatex(equa[0]))
+	print(len(equa))
+
 	equa = invMixColumns()
 	print(equa[0])
-	print(len(equa))
 	print(equaToLatex(equa[0]))
+	print(len(equa))
 
 
 if __name__ == "__main__":
