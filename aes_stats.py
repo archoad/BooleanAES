@@ -130,7 +130,7 @@ def weightBitsGraph(weightDict, name, display=False):
 	for rect, label in zip(rects, sortedValues):
 		height = rect.get_height()
 		ax.text(rect.get_x() + rect.get_width()/2, height, label, ha='center', va='bottom', size=8)
-	ax.set_xlabel('Numero du bit')
+	ax.set_xlabel('Numero du bit (mod 8)')
 	ax.set_xticks(x)
 	ax.set_xticklabels(sortedKeys)
 	for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
@@ -479,10 +479,10 @@ def oneBitDistribution(mode):
 	weightBitsGraph(weightBit, mode, display=False)
 
 
-def oneBitDistributionKey():
+def oneBitDistributionKeyFirstMethod():
 	numMonom = [0 for i in range(blockSize)]
-	testAESdirectory()
-	generateEncFullFiles()
+	#testAESdirectory()
+	#generateEncFullFiles()
 	fname = fileNameEnc
 	start = '## addRoundKey9'
 	end = '## Round9'
@@ -496,6 +496,21 @@ def oneBitDistributionKey():
 					numMonom[j] += 1
 	print(numMonom)
 	distributionBitsGraph(numMonom, 'key', display=False)
+
+
+def oneBitDistributionKeySecondMethod():
+	equa = generateKn(generateWord(8), generateWord(9), generateWord(10), generateWord(11))
+	numMonom = [0 for i in range(blockSize)]
+	for i in range(blockSize):
+		for mon in equa[i].split('+'):
+			if (mon != '1'):
+				tmp = mon.split('x_')
+				del tmp[0]
+				for m in tmp:
+					numMonom[int(m)] += 1
+	print(numMonom)
+	distributionBitsGraph(numMonom, 'key', display=False)
+
 
 
 def twoBitDistribution(mode):
@@ -519,10 +534,14 @@ if __name__ == "__main__":
 	#roundTest('enc')
 	#roundKeyTest()
 	#fullEquaCombinatoryAnalysis()
-	oneBitDistribution('enc')
-	oneBitDistribution('dec')
-	#oneBitDistributionKey()
-	#twoBitDistribution('key')
+	#oneBitDistribution('enc')
+	#oneBitDistribution('dec')
+	#oneBitDistributionKeyFirstMethod()
+	#oneBitDistributionKeySecondMethod()
+	twoBitDistribution('enc')
+	twoBitDistribution('dec')
+	twoBitDistribution('key')
+
 
 
 
