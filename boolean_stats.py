@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import random
+import math
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.misc import comb
 import matplotlib.pyplot as mpl
@@ -120,6 +121,28 @@ def monomesNumber(equa, n):
 	return tab
 
 
+def distributionBitsGraph(y, n, display=False):
+	w = 0.6
+	x = np.arange(n)
+	low = min(y)
+	high = max(y)
+	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
+	ax = fig.add_subplot(111)
+	ax.bar(x, y, w, align='center', color=rgb, edgecolor=rgbDark)
+	ax.set_xlabel('Numero du bit')
+	xscale = [i for i in range(0, n+7, 8)]
+	ax.set_xticks(xscale)
+	for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+		item.set_fontsize(8)
+	ax.grid(True)
+	mpl.xlim([-2, n+1])
+	mpl.ylim([math.ceil(low-0.5*(high-low)), math.ceil(high+0.5*(high-low))])
+	if display:
+		mpl.show()
+	else:
+		mpl.savefig('graph_1bit_bool_distrib.png', dpi=160)
+
+
 def distribution2BitsGraph(tab, n, display=False):
 	data = np.asarray(tab)
 	gap = np.ceil((np.max(data) - np.min(data)) / 8.).astype(int)
@@ -202,7 +225,21 @@ def monomesGraph(tab, n, display=False):
 		mpl.show()
 
 
-def monomesDistribution(equa, n):
+def oneBitDistribution(equa, n):
+	printColor("### Calculation of monomes disribution", MAGENTA)
+	numMonom = [0 for i in range(n)]
+	for i in range(n):
+		for mon in equa[i].split('+'):
+			if (mon != '1'):
+				tmp = mon.split('x_')
+				del tmp[0]
+				for m in tmp:
+					numMonom[int(m)] += 1
+	print(numMonom)
+	return numMonom
+
+
+def twoBitDistribution(equa, n):
 	printColor("### Calculation of monomes disribution (grouped by 2)", MAGENTA)
 	numMonom = [[0 for i in range(n)] for i in range(n)]
 	for num in range(n):
@@ -242,5 +279,7 @@ if __name__ == "__main__":
 	equa = generateEquaMonomes(mt, n)
 	tab = monomesNumber(equa, n)
 	monomesGraph(tab, n, display=False)
-	distrib = monomesDistribution(equa,n)
-	distribution2BitsGraph(distrib, n, display=False)
+	distrib1 = oneBitDistribution(equa, n)
+	distributionBitsGraph(distrib1, n, display=False)
+	distrib2 = twoBitDistribution(equa, n)
+	distribution2BitsGraph(distrib2, n, display=False)

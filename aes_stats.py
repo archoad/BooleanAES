@@ -114,6 +114,37 @@ def distributionBitsGraph(y, name, display=False):
 		mpl.savefig('graph_bit_distrib_'+name+'.png', dpi=160)
 
 
+def weightBitsGraph(weightDict, name, display=False):
+	w = 0.8
+	l = len(weightDict)
+	sortedValues = sorted(weightDict.values(), reverse=True)
+	sortedKeys = sorted(weightDict, key=weightDict.get, reverse=True)
+	x = np.arange(l)
+	low = min(sortedValues)
+	high = max(sortedValues)
+	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
+	ax = fig.add_subplot(111)
+	for i in range(0, l):
+		ax.bar(x[i], sortedValues[i], align='center', width=w, color=rgb[i%len(rgb)], edgecolor=rgbDark[i%len(rgbDark)])
+	rects = ax.patches
+	for rect, label in zip(rects, sortedValues):
+		height = rect.get_height()
+		ax.text(rect.get_x() + rect.get_width()/2, height, label, ha='center', va='bottom', size=8)
+	ax.set_xlabel('Numero du bit')
+	ax.set_xticks(x)
+	ax.set_xticklabels(sortedKeys)
+	for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+		item.set_fontsize(8)
+	ax.grid(True)
+	mpl.setp(sortedKeys)
+	mpl.xlim([-2, octetSize+1])
+	mpl.ylim([math.ceil(low-0.5*(high-low)), math.ceil(high+0.5*(high-low))])
+	if display:
+		mpl.show()
+	else:
+		mpl.savefig('graph_bit_weight_'+name+'.png', dpi=160)
+
+
 def distribution2BitsGraph(tab, name, display=False):
 	data = np.asarray(tab)
 	gap = np.ceil((np.max(data) - np.min(data)) / 8.).astype(int)
@@ -316,10 +347,26 @@ def monomesDistribution(equa, n):
 	return numMonom
 
 
+def equaToLatex(equa):
+	result = '$'
+	for item in equa.split('+'):
+		for mon in item.split('x_'):
+			if (len(mon)):
+				result += 'x_{' + mon + '}'
+		result += ' + '
+	result = result.rstrip(' + ') + '$'
+	return(result)
+
+
 def someTests(size):
 	displayTabMeanVariance(size)
 	print(computeMean(size))
 	print(computeVariance(size))
+	equa = generateRoundDecEqua(invSubBytes(), invShiftRows())
+	#equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
+	print(equa[0])
+	latex = equaToLatex(equa[0])
+	print(latex)
 
 
 def generateGraphCode():
@@ -382,6 +429,8 @@ def fullEquaCombinatoryAnalysis():
 	resultDec = []
 	nbMonomEnc = []
 	nbMonomDec = []
+	nbrEnc = 0
+	nbrDec = 0
 	for bit in range(blockSize):
 		fileEnc = fileNameEnc+'%s.txt' % intToThreeChar(bit)
 		fileDec = fileNameDec+'%s.txt' % intToThreeChar(bit)
@@ -393,9 +442,14 @@ def fullEquaCombinatoryAnalysis():
 		resultDec.append(countAllMonomes(allLinesDec))
 		nbMonomEnc.append(numMonomE)
 		nbMonomDec.append(numMonomD)
+		nbrEnc += numMonomE
+		nbrDec += numMonomD
 		print("bit number: %d" % (bit), numMonomE, resultEnc[bit], numMonomD, resultDec[bit])
 	print('\r')
+	print("Mean number (enc): %d, (dec): %d" % (nbrEnc/128, nbrDec/128))
 	distributionMonomeGraph(nbMonomEnc, nbMonomDec, display=False)
+	monomesGraph(resultEnc, 'enc', display=False)
+	monomesGraph(resultDec, 'dec', display=False)
 
 
 def oneBitDistribution(mode):
@@ -403,6 +457,7 @@ def oneBitDistribution(mode):
 	This function returns a 128 cases tab which details the number of time
 	the bits b1...b128 appears in the equation"""
 	numMonom = [0 for i in range(blockSize)]
+	weightBit = {k:0 for k in range(octetSize)}
 	testAESdirectory()
 	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
 	fname = (fileNameEnc if mode == 'enc' else fileNameDec)
@@ -416,8 +471,31 @@ def oneBitDistribution(mode):
 			for j in range(blockSize):
 				if tmp[j] == '1':
 					numMonom[j] += 1
+	for i in range(octetSize):
+		weightBit[i] = numMonom[i]
 	print(numMonom)
+	print(weightBit)
 	distributionBitsGraph(numMonom, mode, display=False)
+	weightBitsGraph(weightBit, mode, display=False)
+
+
+def oneBitDistributionKey():
+	numMonom = [0 for i in range(blockSize)]
+	testAESdirectory()
+	generateEncFullFiles()
+	fname = fileNameEnc
+	start = '## addRoundKey9'
+	end = '## Round9'
+	for i in range(blockSize):
+		f = fname + '%s.txt' % intToThreeChar(i)
+		tab = extractBlock(f, start, end)
+		for mon in tab:
+			tmp = mon.split('\t')[1]
+			for j in range(blockSize):
+				if tmp[j] == '1':
+					numMonom[j] += 1
+	print(numMonom)
+	distributionBitsGraph(numMonom, 'key', display=False)
 
 
 def twoBitDistribution(mode):
@@ -441,8 +519,10 @@ if __name__ == "__main__":
 	#roundTest('enc')
 	#roundKeyTest()
 	#fullEquaCombinatoryAnalysis()
-	#oneBitDistribution('enc')
-	twoBitDistribution('key')
+	oneBitDistribution('enc')
+	oneBitDistribution('dec')
+	#oneBitDistributionKey()
+	#twoBitDistribution('key')
 
 
 
