@@ -6,6 +6,7 @@ import random
 import sys
 import math
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as mpl
 from scipy import misc
 from scipy import stats
@@ -145,7 +146,7 @@ def weightBitsGraph(weightDict, name, display=False):
 		mpl.savefig('graph_bit_weight_'+name+'.png', dpi=160)
 
 
-def distribution2BitsGraph(tab, name, display=False):
+def distribution2BitsGraph3D(tab, name, display=False):
 	data = np.asarray(tab)
 	gap = np.ceil((np.max(data) - np.min(data)) / 8.).astype(int)
 	fig = mpl.figure(figsize=(8, 6), dpi=100)
@@ -166,7 +167,7 @@ def distribution2BitsGraph(tab, name, display=False):
 	ax.set_xlabel("Numero du premier bit")
 	ax.set_ylabel("Numero du deuxieme bit")
 	ax.set_zlabel("Nombre d'occurences")
-	for item in ([ax.xaxis.label, ax.yaxis.label, ax.zaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()) + ax.get_zticklabels():
+	for item in ([ax.xaxis.label, ax.yaxis.label, ax.zaxis.label] + ax.get_xticklabels() + ax.get_yticklabels() + ax.get_zticklabels()):
 		item.set_fontsize(8)
 	ax.grid(True)
 	ax.view_init(azim=30, elev=8)
@@ -177,7 +178,28 @@ def distribution2BitsGraph(tab, name, display=False):
 	if display:
 		mpl.show()
 	else:
-		mpl.savefig('graph_2bit_distrib_'+name+'.png', dpi=160)
+		mpl.savefig('graph_2bit_distrib_3D_'+name+'.png', dpi=160)
+
+
+def distribution2BitsGraph2D(tab, name, display=False):
+	data = np.asarray(tab)
+	fig = mpl.figure(figsize=(8, 6), dpi=100)
+	ax = mpl.gca()
+	img = ax.imshow(data, interpolation='nearest', cmap=mpl.cm.Blues, origin='upper', extent=[0, blockSize, 0, blockSize], vmax=abs(data).max(), vmin=abs(data).min())
+	ax.set_xlabel("Numero du premier bit")
+	ax.set_ylabel("Numero du deuxieme bit")
+	ax.grid(True)
+	for item in ([ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+		item.set_fontsize(8)
+
+	divider = make_axes_locatable(ax)
+	cax = divider.append_axes("right", size="5%", pad=0.1)
+	cb = mpl.colorbar(img, cax=cax)
+	cb.ax.tick_params(labelsize=8)
+	if display:
+		mpl.show()
+	else:
+		mpl.savefig('graph_2bit_distrib_2D_'+name+'.png', dpi=160)
 
 
 def distributionMonomeGraph(tabEnc, tabDec, display=False):
@@ -333,18 +355,33 @@ def countAllMonomes(allLines):
 def monomesDistribution(equa, n):
 	printColor("### Calculation of monomes disribution (grouped by 2)", MAGENTA)
 	numMonom = [[0 for i in range(n)] for i in range(n)]
-	for num in range(n):
+	for num in range(len(equa)):
 		tmp = equa[num].split('+')
 		for mon in tmp:
 			monom = mon.split('x_')
 			del monom[0]
 			l = len(monom)
-			if l >1:
-				for r in range(0, l-1, 1):
+			if l>1:
+				for r in range(l-1):
 					numMonom[int(monom[r])][int(monom[r+1])] += 1
 	for item in numMonom:
 		print(item)
 	return numMonom
+
+
+def saveOctaveMatrix(distrib, n):
+	f = open('distrib.dat', 'w')
+	f.write('# name: aes\n')
+	f.write('# type: matrix\n')
+	f.write('# rows: %d\n' % n)
+	f.write('# columns: %d\n' % n)
+	for r in range(n):
+		f.write(' ')
+		for c in range(n):
+			f.write(str(distrib[r][c]))
+			f.write(' ')
+		f.write('\n')
+	closeFile(f)
 
 
 def equaToLatex(equa):
@@ -512,7 +549,6 @@ def oneBitDistributionKeySecondMethod():
 	distributionBitsGraph(numMonom, 'key', display=False)
 
 
-
 def twoBitDistribution(mode):
 	if (mode == 'enc'):
 		equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
@@ -520,10 +556,22 @@ def twoBitDistribution(mode):
 		equa = generateRoundDecEqua(invSubBytes(), invShiftRows())
 	if (mode == 'key'):
 		equa = generateKn(generateWord(4), generateWord(5), generateWord(6), generateWord(7))
+	if (mode == 'fullkey'):
+		equa = generateKn(generateWord(0), generateWord(1), generateWord(2), generateWord(3))
+		equa += generateKn(generateWord(4), generateWord(5), generateWord(6), generateWord(7))
+		equa += generateKn(generateWord(8), generateWord(9), generateWord(10), generateWord(11))
+		equa += generateKn(generateWord(12), generateWord(13), generateWord(14), generateWord(15))
+		equa += generateKn(generateWord(16), generateWord(17), generateWord(18), generateWord(19))
+		equa += generateKn(generateWord(20), generateWord(21), generateWord(22), generateWord(23))
+		equa += generateKn(generateWord(24), generateWord(25), generateWord(26), generateWord(27))
+		equa += generateKn(generateWord(28), generateWord(29), generateWord(30), generateWord(31))
+		equa += generateKn(generateWord(32), generateWord(33), generateWord(34), generateWord(35))
+		equa += generateKn(generateWord(36), generateWord(37), generateWord(38), generateWord(39))
+		equa += generateKn(generateWord(40), generateWord(41), generateWord(42), generateWord(43))
 	distrib = monomesDistribution(equa, 128)
-	distribution2BitsGraph(distrib, mode, display=False)
-
-
+	saveOctaveMatrix(distrib, 128)
+	distribution2BitsGraph2D(distrib, mode, display=False)
+	#distribution2BitsGraph3D(distrib, mode, display=True)
 
 
 if __name__ == "__main__":
@@ -533,14 +581,15 @@ if __name__ == "__main__":
 	#roundFunctionsTest()
 	#roundTest('enc')
 	#roundKeyTest()
-	#fullEquaCombinatoryAnalysis()
+	fullEquaCombinatoryAnalysis()
 	#oneBitDistribution('enc')
 	#oneBitDistribution('dec')
 	#oneBitDistributionKeyFirstMethod()
 	#oneBitDistributionKeySecondMethod()
-	twoBitDistribution('enc')
-	twoBitDistribution('dec')
-	twoBitDistribution('key')
+	#twoBitDistribution('enc')
+	#twoBitDistribution('dec')
+	#twoBitDistribution('key')
+	#twoBitDistribution('fullkey')
 
 
 

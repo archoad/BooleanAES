@@ -51,8 +51,9 @@ def treatLines(allLines, mode):
 	return result
 
 
-def createFullFiles(mode):
-	testAESdirectory()
+def createFullFiles(mode, createDir=True):
+	if createDir:
+		testAESdirectory()
 	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
 	for i in range(blockSize):
 		fname = (fileNameEnc if mode == 'enc' else fileNameDec)
@@ -91,9 +92,9 @@ def someTests():
 
 if __name__ == "__main__":
 	print(sys.version)
-	someTests()
-	#encryptionProcess(step=True, control=True)
-	#decryptionProcess(step=True, control=True)
-	#createFullFiles('enc')
-	#createFullFiles('dec')
+	#someTests()
+	encryptionProcess(step=False, control=True)
+	decryptionProcess(step=False, control=True)
+	#createFullFiles('enc', createDir=True)
+	#createFullFiles('dec', createDir=False)
 	#testKeyExpansion()

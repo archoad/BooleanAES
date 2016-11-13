@@ -333,6 +333,14 @@ def testAESdirectory():
 		shutil.rmtree(directory)
 
 
+def existAESdirectory():
+	d = os.path.dirname(directory)
+	if os.path.exists(d):
+		return(True)
+	else:
+		return(False)
+
+
 def writeEndFlag(val):
 	fname = (fileNameEnc if val == 'enc' else fileNameDec)
 	for i in range(blockSize):
