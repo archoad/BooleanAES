@@ -5,6 +5,7 @@ import os
 import random
 import sys
 import math
+from PIL import Image
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as mpl
@@ -269,7 +270,6 @@ def monomesGraph(tab, mode, display=False):
 		mpl.savefig('graph_'+str(degree)+'_'+mode+'.png', dpi=160, bbox_inches=extent, pad_inches=0)
 	if display:
 		mpl.show()
-
 
 
 def displayLatexTable(val, start, end):
@@ -571,7 +571,56 @@ def twoBitDistribution(mode):
 	distrib = monomesDistribution(equa, 128)
 	saveOctaveMatrix(distrib, 128)
 	distribution2BitsGraph2D(distrib, mode, display=False)
-	#distribution2BitsGraph3D(distrib, mode, display=True)
+	distribution2BitsGraph3D(distrib, mode, display=True)
+
+
+def bitToDots(data, val):
+	result = np.array([], dtype=np.uint8)
+	result = []
+	separator = [128, 128, 128, 255]
+	transparent = [0, 0, 0, 0]
+	for line in data:
+		if line[0] == '#':
+			result.append([separator  for i in range(blockSize)])
+		else:
+			line = line.split('\t')[1].strip('\n')
+			tmp = []
+			for bit in range(blockSize):
+				if line[bit] == '1':
+					c = round(((val+1)*200/128)+50)
+					tmp.append([c, 0, 255-c, 255])
+				else:
+					tmp.append(transparent)
+			result.append(tmp)
+	return(np.array(result, dtype=np.uint8))
+
+
+def keyEquaToPng():
+	testAESdirectory()
+	generateEncFullFiles()
+	start = '## addRoundKey1'
+	end = '## Round1'
+	for bit in range(blockSize):
+		equaFile = fileNameEnc+'%s.txt' % intToThreeChar(bit)
+		imgFile = directory+fileNameEnc+'%s.png' % intToThreeChar(bit)
+		lines = extractBlock(equaFile, start, end)
+		tab = bitToDots(lines, bit)
+		img = Image.fromarray(tab, mode='RGBA')
+		img.save(imgFile)
+		print(bit, len(tab), imgFile)
+	tabImg = []
+	hmax = 0
+	for bit in range(blockSize):
+		imgFile = directory+fileNameEnc+'%s.png' % intToThreeChar(bit)
+		tabImg.append(Image.open(imgFile))
+		hmax = max(tabImg[bit].size[1], hmax)
+	newImg = Image.new('RGBA', (blockSize, hmax))
+	for im in tabImg:
+		newImg.paste(im, (0, 0), im)
+	factor = 8
+	maxsize = (blockSize*factor, hmax*factor)
+	newImg.save('key_original.png')
+	newImg.resize(maxsize).save('key_bigsize.png')
 
 
 if __name__ == "__main__":
@@ -581,7 +630,7 @@ if __name__ == "__main__":
 	#roundFunctionsTest()
 	#roundTest('enc')
 	#roundKeyTest()
-	fullEquaCombinatoryAnalysis()
+	#fullEquaCombinatoryAnalysis()
 	#oneBitDistribution('enc')
 	#oneBitDistribution('dec')
 	#oneBitDistributionKeyFirstMethod()
@@ -590,6 +639,7 @@ if __name__ == "__main__":
 	#twoBitDistribution('dec')
 	#twoBitDistribution('key')
 	#twoBitDistribution('fullkey')
+	keyEquaToPng()
 
 
 
