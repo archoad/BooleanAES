@@ -93,8 +93,8 @@ def someTests():
 if __name__ == "__main__":
 	print(sys.version)
 	#someTests()
-	encryptionProcess(step=False, control=True)
-	decryptionProcess(step=False, control=True)
-	#createFullFiles('enc', createDir=True)
-	#createFullFiles('dec', createDir=False)
+	#encryptionProcess(step=False, control=True)
+	#decryptionProcess(step=False, control=True)
+	createFullFiles('enc', createDir=True)
+	createFullFiles('dec', createDir=False)
 	#testKeyExpansion()
