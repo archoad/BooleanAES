@@ -69,32 +69,35 @@ def createFullFiles(mode, createDir=True):
 
 
 def someTests():
-	w = generateWord(4)
-	print(w[0])
-	print(equaToLatex(w[0]))
-	print(len(w))
-
+	#equa = subBytes()
+	#equa = shiftRows()
+	#equa = mixColumns()
 	equa = invSubBytes()
-	print(equa[0])
-	print(equaToLatex(equa[0]))
-	print(len(equa))
-
+	print(equaToLatex(equa[0], 'b'), end='\n\n')
 	equa = invShiftRows()
-	print(equa[0])
-	print(equaToLatex(equa[0]))
-	print(len(equa))
-
+	print(equaToLatex(equa[0], 'b'), end='\n\n')
 	equa = invMixColumns()
-	print(equa[0])
-	print(equaToLatex(equa[0]))
-	print(len(equa))
+	print(equaToLatex(equa[0], 'b'), end='\n\n')
+	#equa = generateWord(4)
+	#print(equa[0], end='\n\n')
+	#print(equaToLatex(equa[0], 'b'), end='\n\n')
+	#print(len(equa), end='\n\n')
+	#for bit in range(120, 128, 1):
+	#	val = equaToLatex(equa[bit], 'b').strip('$')
+	#	print('\\text{MixColumns}(b_{%s}) = %s \\\\' % (bit, val))
+	# génération de l'équation pour un tour
+	#equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
+	#equaKey = generateWord(4)
+	#print("$b'_0 = %s \\oplus %s$" % (equaToLatex(equa[0], 'b').strip('$'), equaToLatex(equaKey[0], 'k').strip('$')))
+
+
 
 
 if __name__ == "__main__":
 	print(sys.version)
-	#someTests()
+	someTests()
 	#encryptionProcess(step=False, control=True)
 	#decryptionProcess(step=False, control=True)
-	createFullFiles('enc', createDir=True)
-	createFullFiles('dec', createDir=False)
+	#createFullFiles('enc', createDir=True)
+	#createFullFiles('dec', createDir=False)
 	#testKeyExpansion()

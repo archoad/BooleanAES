@@ -459,17 +459,15 @@ def controlBlock(mode, start, end, block, key=None):
 	print(bin2hex(block), len(bin2hex(block)))
 	return block
 
-def equaToLatex(equa):
+def equaToLatex(equa, letter):
 	result = '$'
-	tmp = equa.split('+');
-	for monomial in tmp:
+	for monomial in equa.split('+'):
 		if monomial == '1':
 			result += monomial + '+'
 		else:
-			ix = monomial.split('x')
-			for val in ix:
+			for val in monomial.split('x'):
 				if val != '':
-					result += 'x_{%s}' % (val.lstrip('_'))
+					result += '%s_{%s}' % (letter, val.lstrip('_'))
 			result += '+'
 	result = result.rstrip('+') + '$'
 	result = result.replace('+', ' \oplus ')

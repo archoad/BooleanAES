@@ -639,7 +639,7 @@ if __name__ == "__main__":
 	#twoBitDistribution('dec')
 	#twoBitDistribution('key')
 	#twoBitDistribution('fullkey')
-	keyEquaToPng()
+	#keyEquaToPng()
 
 
 
