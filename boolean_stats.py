@@ -129,7 +129,7 @@ def distributionBitsGraph(y, n, display=False):
 	fig = mpl.figure(figsize=(8, 6), dpi=100) # fig definition -> figsize=(16, 12) figsize=(8, 6)
 	ax = fig.add_subplot(111)
 	ax.bar(x, y, w, align='center', color=rgb, edgecolor=rgbDark)
-	ax.set_xlabel('Numero du bit')
+	ax.set_xlabel('Variable')
 	xscale = [i for i in range(0, n+7, 8)]
 	ax.set_xticks(xscale)
 	for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):

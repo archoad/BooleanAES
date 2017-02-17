@@ -240,19 +240,36 @@ def controlCipheringProcess():
 	printColor('## Cipher block %s' % blockToStr(block), BLUE)
 
 
-def tests():
-	(k0, k1, k2) = generateRoundsKeysTruthTable()
-	mtk1 = generateMoebiusTransform(k1)
-	print(mtk1, len(mtk1))
+def printLatexEqua():
+	(ttk0, ttk1, ttk2) = generateRoundsKeysTruthTable()
+	#ttr1 = generateRoundOneTruthTable()
+	ttr2 = generateRoundTwoTruthTable()
 
+	#mtk0 = generateMoebiusTransform(ttk0)
+	#mtr1 = generateMoebiusTransform(ttr1)
+	#mtk1 = generateMoebiusTransform(ttk1)
+	mtr2 = generateMoebiusTransform(ttr2)
+	mtk2 = generateMoebiusTransform(ttk2)
 	for i in range(blockSize):
-		equa = definesMonomeBlock(mtk1[i])
-		print(equa)
+		#eqk0 = definesMonomeBlock(mtk0[i])
+		#eqr1 = definesMonomeBlock(mtr1[i])
+		#eqk1 = definesMonomeBlock(mtk1[i])
+		eqr2 = definesMonomeBlock(mtr2[i])
+		eqk2 = definesMonomeBlock(mtk2[i])
+		#lak0 = equaToLatex(eqk0, 'k', False).strip('$')
+		#lar1 = equaToLatex(eqr1, 'b', '0').strip('$')
+		#lak1 = equaToLatex(eqk1, 'k', False).strip('$')
+		lar2 = equaToLatex(eqr2, 'b', '1').strip('$')
+		lak2 = equaToLatex(eqk2, 'k', False).strip('$')
+		#print("$b_{1,%s} = %s \\oplus %s \\oplus %s$" % (i+1, lak0, lar1, lak1), end='\n\n\\medskip\n\n')
+		print("$b_{2,%s} = %s \\oplus %s$" % (i+1, lar2, lak2), end='\n\n\\medskip\n\n')
+
+
 
 
 
 
 if __name__ == "__main__":
-	tests()
+	printLatexEqua()
 #	generateFiles()
 #	controlCipheringProcess()

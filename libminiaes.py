@@ -140,17 +140,18 @@ def xorList(mylist):
 
 
 
-def equaToLatex(equa):
+def equaToLatex(equa, letter, num):
 	result = '$'
-	tmp = equa.split('+');
-	for monomial in tmp:
+	for monomial in equa.split('+'):
 		if monomial == '1':
 			result += monomial + '+'
 		else:
-			ix = monomial.split('x')
-			for val in ix:
+			for val in monomial.split('x'):
 				if val != '':
-					result += 'x_{%s}' % (val)
+					if (num):
+						result += '%s_{%s,%s}' % (letter, num, val)
+					else:
+						result += '%s_{%s}' % (letter, val)
 			result += '+'
 	result = result.rstrip('+') + '$'
 	result = result.replace('+', ' \oplus ')
