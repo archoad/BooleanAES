@@ -76,8 +76,8 @@ def someTests():
 	#equa = invShiftRows()
 	#equa = invMixColumns()
 	equa = generateWord(4)
-	#print(equa[0], end='\n\n')
-	print(equaToLatex(equa[0], 'k'), end='\n\n')
+	print(equa[0], len(equa), end='\n\n')
+	#print(equaToLatex(equa[0], 'k'), end='\n\n')
 	#print(len(equa), end='\n\n')
 	#for bit in range(120, 128, 1):
 	#	val = equaToLatex(equa[bit], 'b').strip('$')
@@ -92,8 +92,8 @@ def someTests():
 
 if __name__ == "__main__":
 	print(sys.version)
-	someTests()
-	#encryptionProcess(step=False, control=True)
+	#someTests()
+	encryptionProcess(step=False, control=True)
 	#decryptionProcess(step=False, control=True)
 	#createFullFiles('enc', createDir=True)
 	#createFullFiles('dec', createDir=False)

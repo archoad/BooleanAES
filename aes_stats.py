@@ -307,6 +307,21 @@ def displayTableAES(val, start, end):
 	return aesDegree
 
 
+def displayLatexTableAES(val, start, end):
+	aesDegree = []
+	degreeSum = [0 for i in range(octetSize+1)]
+	fname = (fileNameEnc if val == 'enc' else fileNameDec)
+	for i in range(blockSize):
+		f = fname + '%s.txt' % intToThreeChar(i)
+		print("$%s$ & " % i, end='')
+		tab = extractBlock(f, start, end)
+		print("$%s$ " % len(tab), end='')
+		d = countMonomes(tab)
+		for deg in d:
+			print("& $%s$ " % deg, end='')
+		print("\\tabularnewline\\hline")
+
+
 def computeStatDistance(aes, mean):
 	printColor("### Calculating chi2 manually", GREEN)
 	distance = [0 for i in range(len(mean))]
@@ -436,7 +451,6 @@ def roundFunctionsTest():
 def roundTest(mode):
 	testAESdirectory()
 	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
-	fname = (fileNameEnc if mode == 'enc' else fileNameDec)
 	start = ('## Round0' if mode == 'enc' else '## Round9')
 	end = ('## addRoundKey1' if mode == 'enc' else '## addRoundKey9')
 	degree = displayTableAES(mode, start, end) # round
@@ -456,6 +470,14 @@ def roundKeyTest():
 	computeStatDistance(degree, mean)
 	generateChi2Table(127, 128)
 	monomesGraph(degree, 'enc', display=True)
+
+
+def printRoundDegreeTab(mode):
+	testAESdirectory()
+	(generateEncFullFiles() if mode == 'enc' else generateDecFullFiles())
+	start = ('## Round0' if mode == 'enc' else '## Round9')
+	end = ('## addRoundKey1' if mode == 'enc' else '## addRoundKey9')
+	degree = displayLatexTableAES(mode, start, end) # round)
 
 
 def fullEquaCombinatoryAnalysis():
@@ -639,7 +661,8 @@ if __name__ == "__main__":
 	#twoBitDistribution('dec')
 	#twoBitDistribution('key')
 	#twoBitDistribution('fullkey')
-	keyEquaToPng()
+	#keyEquaToPng()
+	printRoundDegreeTab('enc')
 
 
 
