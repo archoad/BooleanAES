@@ -11,8 +11,6 @@ from libequaenc import *
 from libequadec import *
 
 
-
-
 def encryptionProcess(step=False, control=False):
 	if step:
 		generateEncStepsFiles()
@@ -68,6 +66,9 @@ def createFullFiles(mode, createDir=True):
 	printColor('## Files generated', YELLOW)
 
 
+
+
+
 def someTests():
 	#equa = subBytes()
 	#equa = shiftRows()
@@ -75,15 +76,17 @@ def someTests():
 	#equa = invSubBytes()
 	#equa = invShiftRows()
 	#equa = invMixColumns()
-	equa = generateWord(4)
-	print(equa[0], len(equa), end='\n\n')
+	#equa = generateWord(4)
+	#print(equa[0], len(equa), end='\n\n')
 	#print(equaToLatex(equa[0], 'k'), end='\n\n')
 	#print(len(equa), end='\n\n')
 	#for bit in range(120, 128, 1):
 	#	val = equaToLatex(equa[bit], 'b').strip('$')
 	#	print('\\text{MixColumns}(b_{%s}) = %s \\\\' % (bit, val))
 	# génération de l'équation pour un tour
-	#equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
+	equa = generateRoundEncEqua(subBytes(), shiftRows(), mixColumns())
+	equa = reduceEqua(equa)
+	#equa = generateRoundDecEqua(invSubBytes(), invShiftRows())
 	#equaKey = generateWord(4)
 	#print("$b'_0 = %s \\oplus %s$" % (equaToLatex(equa[0], 'b').strip('$'), equaToLatex(equaKey[0], 'k').strip('$')))
 

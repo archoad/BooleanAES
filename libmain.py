@@ -13,6 +13,7 @@ blockSize = 128 #16 for mini-aes and 128 for aes
 directory = 'AES_files/'
 fileNameEnc = 'f_enc_'
 fileNameDec = 'f_dec_'
+reduceEquation = True
 
 
 def hex2bin(h):
@@ -290,6 +291,30 @@ def generateMoebiusTransform(tt):
 		for block in tt:
 			tmp += block[i]
 		result.append(moebiusTransform(tmp))
+	return result
+
+
+def reduceEqua(equa):
+	print('\033[1;%dm%s\033[0m' % (CYAN, '## Reduce equation '), end='')
+	result = []
+	before = 0
+	after = 0
+	for i in range(len(equa)):
+		tab = equa[i].split('+')
+		before += len(tab)
+		tabtmp = []
+		for monomial in tab:
+			count = tab.count(monomial)
+			if (count % 2 != 0): # we remove odd items
+				tabtmp.append(monomial)
+		tabtmp = list(set(tabtmp)) # we remove even items
+		after += len(tabtmp)
+		tmp = ''
+		for monomial in tabtmp:
+			tmp += monomial
+			tmp += '+'
+		result.append(tmp.rstrip('+'))
+	printColor('%d -> %d monomials' % (before, after), CYAN)
 	return result
 
 

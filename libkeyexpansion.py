@@ -195,6 +195,7 @@ def testWord(w, key):
 
 
 def addRoundKey(numRound, val):
+	global reduceEquation
 	printColor('## AddRoundKey%s' % numRound, GREEN)
 	fname = (fileNameEnc if val == 'enc' else fileNameDec)
 	result = []
@@ -220,6 +221,7 @@ def addRoundKey(numRound, val):
 		result = generateKn(generateWord(36), generateWord(37), generateWord(38), generateWord(39))
 	elif numRound == 10:
 		result = generateKn(generateWord(40), generateWord(41), generateWord(42), generateWord(43))
+	if (reduceEquation): result = reduceEqua(result)
 	binMon = generateBinaryMonomes(result)
 
 	for i in range(blockSize):

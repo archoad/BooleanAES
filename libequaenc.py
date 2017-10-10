@@ -24,6 +24,7 @@ def generateRoundEncEqua(equaSB, equaSR, equaMC):
 
 
 def generateRoundEnc(equaSB, equaSR, equaMC):
+	global reduceEquation
 	resultSR = []
 	resultMC = []
 	for i in range(blockSize):
@@ -36,13 +37,16 @@ def generateRoundEnc(equaSB, equaSR, equaMC):
 			tmp += resultSR[int(monomial.split('_')[1])]
 			tmp += '+'
 		resultMC.append(tmp.rstrip('+'))
+	if (reduceEquation): resultMC = reduceEqua(resultMC)
 	binMon = generateBinaryMonomes(resultMC)
 	return binMon
 
 
 def writeSubBytes(numRound):
+	global reduceEquation
 	printColor('## SubBytes%s' % numRound, GREEN)
 	equa = subBytes()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
@@ -53,8 +57,10 @@ def writeSubBytes(numRound):
 
 
 def writeShiftRows(numRound):
+	global reduceEquation
 	printColor('## ShiftRows%s' % numRound, GREEN)
 	equa = shiftRows()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
@@ -65,8 +71,10 @@ def writeShiftRows(numRound):
 
 
 def writeMixColumns(numRound):
+	global reduceEquation
 	printColor('## MixColumns%s' % numRound, GREEN)
 	equa = mixColumns()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameEnc+'%s.txt' % intToThreeChar(i))
@@ -77,6 +85,7 @@ def writeMixColumns(numRound):
 
 
 def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
+	global reduceEquation
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
 	resultMC = []
@@ -90,6 +99,7 @@ def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
 			tmp += resultSR[int(monomial.split('_')[1])]
 			tmp += '+'
 		resultMC.append(tmp.rstrip('+'))
+	if (reduceEquation): resultMC = reduceEqua(resultMC)
 	binMon = generateBinaryMonomes(resultMC)
 
 	for i in range(blockSize):
@@ -101,11 +111,13 @@ def writeRoundEnc(numRound, equaSB, equaSR, equaMC):
 
 
 def writeFinalRoundEnc(numRound, equaSB, equaSR):
+	global reduceEquation
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
 	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
+	if (reduceEquation): resultSR = reduceEqua(resultSR)
 	binMon = generateBinaryMonomes(resultSR)
 
 	for i in range(blockSize):

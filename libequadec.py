@@ -8,8 +8,10 @@ from libkeyexpansion import *
 
 
 def writeInvSubBytes(numRound):
+	global reduceEquation
 	printColor('## InvSubBytes%s' % numRound, GREEN)
 	equa = invSubBytes()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
@@ -20,8 +22,10 @@ def writeInvSubBytes(numRound):
 
 
 def writeInvShiftRows(numRound):
+	global reduceEquation
 	printColor('## InvShiftRows%s' % numRound, GREEN)
 	equa = invShiftRows()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
@@ -32,8 +36,10 @@ def writeInvShiftRows(numRound):
 
 
 def writeInvMixColumns(numRound):
+	global reduceEquation
 	printColor('## InvMixColumns%s' % numRound, GREEN)
 	equa = invMixColumns()
+	if (reduceEquation): equa = reduceEqua(equa)
 	binMon = generateBinaryMonomes(equa)
 	for i in range(blockSize):
 		f = openFile(fileNameDec+'%s.txt' % intToThreeChar(i))
@@ -52,11 +58,13 @@ def generateRoundDecEqua(equaSB, equaSR):
 
 
 def writeRoundDec(numRound, equaSB, equaSR):
+	global reduceEquation
 	printColor('## Round%s' % numRound, GREEN)
 	resultSR = []
 	for i in range(blockSize):
 		equaSR[i] = equaSR[i].split('_')
 		resultSR.append(equaSB[int(equaSR[i][1])])
+	if (reduceEquation): resultSR = reduceEqua(resultSR)
 	binMon = generateBinaryMonomes(resultSR)
 
 	for i in range(blockSize):
